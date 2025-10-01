@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class Test : MonoBehaviour
 {
     [SerializeField] private Camera cam;
-    [SerializeField] private GameObject spawnPrefab; // 左键生成的Prefab
+    [SerializeField] private GameObject glucoseCollectorCellPrefab; // 左键生成的Prefab
     private Transform currentSelected;
 
     void Update()
@@ -42,7 +42,7 @@ public class Test : MonoBehaviour
             {
                 // 生成在 Cube 中心
                 Vector3 spawnPos = hitCube.position + new Vector3(0.5f, 0.5f, 0.5f);
-                Instantiate(spawnPrefab, spawnPos, Quaternion.identity);
+                Instantiate(glucoseCollectorCellPrefab, spawnPos, Quaternion.identity, hitCube.parent);
             }
         }
         else

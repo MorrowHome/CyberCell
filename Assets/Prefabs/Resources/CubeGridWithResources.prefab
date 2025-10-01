@@ -9,9 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7829729858597514884}
+  - component: {fileID: 6379288516611178104}
   m_Layer: 0
   m_Name: CubeGridWithResources
-  m_TagString: Untagged
+  m_TagString: GlucoseCubeGrid
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -33,6 +34,25 @@ Transform:
   - {fileID: 5549492981326743761}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6379288516611178104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1641050591842949772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a47aa1472578364ab02a3aaead4e9bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlucoseResource
+  glucoseAmount: 0
+  MINAMOUNT: 50
+  MAXAMOUNT: 500
+  emptyGridPrefab: {fileID: 1641050591842949772, guid: b8283c9214fb917419ac819060a607db, type: 3}
+  meshRenderer: {fileID: 2462227997749211798}
+  minAlpha: 0.195
+  maxAlpha: 0.645
 --- !u!1 &3374677752563321991
 GameObject:
   m_ObjectHideFlags: 0

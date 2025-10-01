@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7829729858597514884}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CubeGrid
-  m_TagString: Untagged
+  m_TagString: CubeGrid
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 5549492981326743761}
   - component: {fileID: 5750202974030870825}
   - component: {fileID: 5098718666892383764}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Selected
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 7893965129294509156}
   - component: {fileID: 2462227997749211798}
   - component: {fileID: 225702886392907712}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}

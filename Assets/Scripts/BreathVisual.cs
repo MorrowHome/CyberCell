@@ -1,14 +1,16 @@
 using UnityEngine;
 
-public class HeartCell : MonoBehaviour
+public class BreathVisual : MonoBehaviour
 {
     [Header("搏动参数")]
     [SerializeField] private float beatSpeed = 2f;     // 心跳频率
     [SerializeField] private float beatStrength = 0.2f; // 扩张幅度
     [SerializeField] private Transform heartCell;       // 子物体引用
+    [SerializeField] private Vector3 minScale = new Vector3(0.7f,0.7f,0.7f);
 
     private Vector3 originalScale;
     private float startTime; // 每个实例的独立起始时间
+    public bool isActive = false;
 
     void Start()
     {
@@ -37,9 +39,9 @@ public class HeartCell : MonoBehaviour
         float elapsed = Time.time - startTime;
 
         // 通过正弦波模拟心跳缩放
-        float scaleFactor = 1 + Mathf.Sin(elapsed * beatSpeed) * beatStrength;
+        float scaleFactor = 0.7f + Mathf.Sin(elapsed * beatSpeed) * beatStrength;
 
         // 应用缩放
-        heartCell.localScale = originalScale * scaleFactor;
+        if(isActive) heartCell.localScale = originalScale * scaleFactor;
     }
 }
