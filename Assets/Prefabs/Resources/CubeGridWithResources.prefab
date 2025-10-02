@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7829729858597514884}
   - component: {fileID: 6379288516611178104}
   - component: {fileID: 4046141991939839921}
+  - component: {fileID: 4334422061533989429}
   m_Layer: 0
   m_Name: CubeGridWithResources
   m_TagString: GlucoseCubeGrid
@@ -64,6 +65,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeGrid
   isOccupied: 0
+  boxCollider: {fileID: 225702886392907712}
+--- !u!114 &4334422061533989429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1641050591842949772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2b16775f54c6654d96a1b6807e64204, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelectedVisual
+  selectedVisual: {fileID: 3374677752563321991}
 --- !u!1 &3374677752563321991
 GameObject:
   m_ObjectHideFlags: 0
@@ -76,7 +91,7 @@ GameObject:
   - component: {fileID: 5750202974030870825}
   - component: {fileID: 5098718666892383764}
   m_Layer: 0
-  m_Name: Selected
+  m_Name: SelectedVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -12,6 +12,8 @@ public class BuildManager : MonoBehaviour
     [SerializeField] private GameObject bloodVesselPrefab;          // 2
     [SerializeField] private GameObject wallPrefab;                 // 3
     [SerializeField] private GameObject towerPrefab;                // 4
+
+
     [SerializeField] private LayerMask cubeGridLayer;
 
     private Transform currentSelected;      // 显示 Selected 子物体
@@ -71,59 +73,55 @@ public class BuildManager : MonoBehaviour
 
     void Update()
     {
-        // 每帧射线用于高亮（保留原有逻辑），这里仍使用 Mouse.current.position.ReadValue()
         Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            Transform hitCube = hit.transform;
-            lastHoveredCube = hitCube;
+            Transform hitTransform = hit.transform.parent; // Cube 根节点
+            print(hitTransform);
 
-            Transform selectedChild = hitCube.transform.parent.Find("Selected");
-            if (selectedChild == null)
+            if (hitTransform != lastHoveredCube)
             {
-                Debug.LogWarning("Cube 下没有名为 Selected 的子物体");
-                return;
-            }
+                // 取消之前的高亮
+                if (lastHoveredCube != null)
+                    lastHoveredCube.GetComponent<SelectedVisual>().SetHighlight(false);
 
-            if (currentSelected != selectedChild)
-            {
-                if (currentSelected != null)
-                    currentSelected.gameObject.SetActive(false);
-
-                currentSelected = selectedChild;
-                currentSelected.gameObject.SetActive(true);
+                // 更新新的 Hover
+                lastHoveredCube = hitTransform;
+                lastHoveredCube.GetComponent<SelectedVisual>().SetHighlight(true);
             }
         }
         else
         {
-            // 没射中时隐藏上一个
-            lastHoveredCube = null;
-
-            if (currentSelected != null)
+            // 鼠标不在格子上，清除高亮
+            if (lastHoveredCube != null)
             {
-                currentSelected.gameObject.SetActive(false);
-                currentSelected = null;
+                lastHoveredCube.GetComponent<SelectedVisual>().SetHighlight(false);
+                lastHoveredCube = null;
             }
         }
     }
 
+
     // ------- Input Action callbacks -------
     private void OnPlace(InputAction.CallbackContext ctx)
     {
-        // 当 Place 被触发（例如鼠标左键按下），使用上次hover到的格子进行放置
         if (lastHoveredCube == null) return;
 
-        CubeGrid cubeGrid = lastHoveredCube.parent.GetComponent<CubeGrid>();
+        CubeGrid cubeGrid = lastHoveredCube.GetComponentInParent<CubeGrid>();
+        if (cubeGrid == null) return; // 没有CubeGrid组件就直接退出
+
         if (cubeGrid.isOccupied)
         {
-            print(cubeGrid.name + "is occupied!");
-            return ;
+            Debug.Log(cubeGrid.name + " is occupied!");
+            return;
         }
+
         Vector3 spawnPos = lastHoveredCube.position + new Vector3(0.5f, 0.5f, 0.5f);
-        Instantiate(GetPrefabForBuild(currentBuild), spawnPos, Quaternion.identity, lastHoveredCube.parent);
-        
+        Instantiate(GetPrefabForBuild(currentBuild), spawnPos, Quaternion.identity, cubeGrid.transform);
+
         cubeGrid.isOccupied = true;
     }
+
 
     private void OnSelect1(InputAction.CallbackContext ctx) => SetCurrentBuild(WhatToBuild.Glucose);
     private void OnSelect2(InputAction.CallbackContext ctx) => SetCurrentBuild(WhatToBuild.BloodVessel);

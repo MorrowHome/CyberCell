@@ -22,6 +22,9 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private GameObject heartCellPrefab;
     [SerializeField] private Vector3 offset = new Vector3(0.5f, 0.5f, 0.5f);
 
+
+    [SerializeField] private Transform cubeGridContainer;
+
     private int ID = 0;
     private bool[,,] resourceMap;  // 记录格子是否是资源格
 
@@ -56,7 +59,7 @@ public class MapGenerator : MonoBehaviour
                     Vector3 position = new Vector3(x * sizeScale, y * sizeScale, z * sizeScale);
                     GameObject prefabToUse = isResource ? cubeGridWithResourcesPrefab : cubeGridPrefab;
 
-                    GameObject ins = Instantiate(prefabToUse, position, Quaternion.identity, transform);
+                    GameObject ins = Instantiate(prefabToUse, position, Quaternion.identity, cubeGridContainer);
                     ins.name = isResource ? $"ResourceCube_{ID++}" : $"Cube_{ID++}";
                 }
             }
@@ -99,7 +102,7 @@ public class MapGenerator : MonoBehaviour
             (int)(LAYS / 2) * sizeScale,
             (int)(ROWS / 2) * sizeScale
         );
-        Instantiate(heartCellPrefab, centerPoint, Quaternion.identity, transform);
+        Instantiate(heartCellPrefab, centerPoint, Quaternion.identity, cubeGridContainer);
     }
 
     private void DrawGridLines()
