@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
 
 
     public static GameManager Instance;
+
+    public int currentMode;
     private void Awake()
     {
         Instance = this;

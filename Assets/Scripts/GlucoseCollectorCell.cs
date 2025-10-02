@@ -6,6 +6,8 @@ public class GlucoseCollectorCell : MonoBehaviour
     [SerializeField] private BreathVisual breathVisual;
     [SerializeField] private string glucoseCubeGridTag = "GlucoseCubeGrid";
     [SerializeField] private float glucoseCollectedPerSecond = 1.0f;
+    
+
 
     void Start()
     {

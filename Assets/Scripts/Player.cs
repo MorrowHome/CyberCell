@@ -25,7 +25,7 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
-        inputActions = new PlayerInputActions();
+        inputActions = InputManager.Instance.inputActions;
         playerCamera = cameraHolder.GetComponentInChildren<Camera>();
     }
 

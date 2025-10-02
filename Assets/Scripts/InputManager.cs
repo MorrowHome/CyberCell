@@ -1,58 +1,37 @@
+// InputManager.cs
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Test : MonoBehaviour
+public class InputManager : MonoBehaviour
 {
-    [SerializeField] private Camera cam;
-    [SerializeField] private GameObject glucoseCollectorCellPrefab; // 左键生成的Prefab
-    private Transform currentSelected;
+    public static InputManager Instance { get; private set; }
 
-    void Update()
+    // 需要在编辑器 -> InputActions 里生成的 C# 包装类名
+    // (默认生成类名与 .inputactions 资源名字相同)
+    public PlayerInputActions inputActions { get; private set; }
+
+    private void Awake()
     {
-        // 射线检测鼠标位置
-        Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit))
+        if (Instance != null && Instance != this)
         {
-            Transform hitCube = hit.transform; // 被射中的 Cube
-
-            // 找 Cube 父物体下的 Selected
-            Transform selectedChild = hitCube.transform.parent.Find("Selected");
-            if (selectedChild == null)
-            {
-                Debug.LogWarning("Cube 下没有名为 Selected 的子物体");
-                return;
-            }
-
-            // 更新当前选中
-            if (currentSelected != selectedChild)
-            {
-                if (currentSelected != null)
-                    currentSelected.gameObject.SetActive(false);
-
-                currentSelected = selectedChild;
-                currentSelected.gameObject.SetActive(true);
-            }
-
-            Debug.Log("射中: " + hitCube.name);
-
-            // 鼠标左键生成Prefab
-            if (Mouse.current.leftButton.wasPressedThisFrame)
-            {
-                // 生成在 Cube 中心
-                Vector3 spawnPos = hitCube.position + new Vector3(0.5f, 0.5f, 0.5f);
-                Instantiate(glucoseCollectorCellPrefab, spawnPos, Quaternion.identity, hitCube.parent);
-            }
+            Destroy(gameObject);
+            return;
         }
-        else
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // 创建并启用（只 new 一次）
+        inputActions = new PlayerInputActions();
+        inputActions.Enable();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
         {
-            // 没射中时隐藏上一个
-            if (currentSelected != null)
-            {
-                currentSelected.gameObject.SetActive(false);
-                currentSelected = null;
-            }
+            inputActions?.Disable();
+            Instance = null;
         }
     }
 }
