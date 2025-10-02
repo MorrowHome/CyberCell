@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class CyberUI : MonoBehaviour
+public class UIManager : MonoBehaviour
 {
     [Header("Top Bars")]
     public Slider apSlider;
