@@ -1,19 +1,48 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BloodVesselManager : MonoBehaviour
 {
     public static BloodVesselManager bloodVesselManager;
 
-    public int totalCountOfBloodVessels = 0;
-
-    public float floatSpeed = 1.0f;
+    private List<BloodVessel> allBloodVessels = new List<BloodVessel>();
 
     private void Awake()
     {
         bloodVesselManager = this;
     }
 
+    /// <summary>
+    /// 注册血管
+    /// </summary>
+    public void RegisterBloodVessel(BloodVessel vessel)
+    {
+        if (!allBloodVessels.Contains(vessel))
+        {
+            allBloodVessels.Add(vessel);
+        }
+    }
 
+    /// <summary>
+    /// 注销血管
+    /// </summary>
+    public void UnregisterBloodVessel(BloodVessel vessel)
+    {
+        if (allBloodVessels.Contains(vessel))
+        {
+            allBloodVessels.Remove(vessel);
+        }
+    }
 
-
+    /// <summary>
+    /// 刷新所有血管连通性
+    /// </summary>
+    public void RefreshAllConnections()
+    {
+        foreach (var vessel in allBloodVessels)
+        {
+            vessel.isConnected = vessel.CheckConnectivityBFS();
+            vessel.UpdateMaterial();
+        }
+    }
 }

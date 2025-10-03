@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
+    public static MapGenerator Instance;
+
     [Header("地图参数")]
     [SerializeField] private int COLS = 10;
     [SerializeField] private int ROWS = 10;
@@ -23,10 +26,22 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private Vector3 offset = new Vector3(0.5f, 0.5f, 0.5f);
 
 
+
+
     [SerializeField] private Transform cubeGridContainer;
+
+
+
+
+    public Dictionary<Vector3, Transform> Vector3_Transform_Dictionary = new Dictionary<Vector3, Transform>();
+    public Dictionary<Transform, Vector3> Transform_Vector3_Dictionary = new Dictionary<Transform, Vector3>();
 
     private int ID = 0;
     private bool[,,] resourceMap;  // 记录格子是否是资源格
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -60,6 +75,8 @@ public class MapGenerator : MonoBehaviour
                     GameObject prefabToUse = isResource ? cubeGridWithResourcesPrefab : cubeGridPrefab;
 
                     GameObject ins = Instantiate(prefabToUse, position, Quaternion.identity, cubeGridContainer);
+                    Vector3_Transform_Dictionary.Add(new Vector3(x,y,z), ins.transform);
+                    Transform_Vector3_Dictionary.Add(ins.transform, new Vector3(x, y, z));
                     ins.name = isResource ? $"ResourceCube_{ID++}" : $"Cube_{ID++}";
                 }
             }
@@ -102,7 +119,15 @@ public class MapGenerator : MonoBehaviour
             (int)(LAYS / 2) * sizeScale,
             (int)(ROWS / 2) * sizeScale
         );
-        Instantiate(heartCellPrefab, centerPoint, Quaternion.identity, cubeGridContainer);
+        Vector3 centerVector3 = new Vector3(
+            (int)(COLS / 2) ,
+            (int)(LAYS / 2) ,
+            (int)(ROWS / 2) 
+        );
+        Vector3_Transform_Dictionary.TryGetValue(centerVector3, out Transform cubeGrid);
+        GameObject ins = Instantiate(heartCellPrefab, centerPoint, Quaternion.identity, cubeGrid);
+        cubeGrid.GetComponent<CubeGrid>().whatIsOnMe = ins.transform;
+        
     }
 
     private void DrawGridLines()
