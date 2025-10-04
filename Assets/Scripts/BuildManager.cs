@@ -78,20 +78,34 @@ public class BuildManager : MonoBehaviour
 
         CubeGrid cubeGrid = lastHoveredCube.GetComponentInParent<CubeGrid>();
         if (cubeGrid == null || cubeGrid.isOccupied) return;
+        
 
         Vector3 spawnPos = lastHoveredCube.position + new Vector3(0.5f, 0.5f, 0.5f);
-        GameObject ins = Instantiate(GetPrefabForBuild(currentBuild), spawnPos, Quaternion.identity, cubeGrid.transform);
-        cubeGrid.whatIsOnMe = ins.transform;
-        cubeGrid.isOccupied = true;
 
-        // 如果是血管，立即初始化注册并刷新 BFS
-        BloodVessel vessel = ins.GetComponent<BloodVessel>();
-        if (vessel != null)
+        IActionPointCost iActionPointCost = GetPrefabForBuild(currentBuild).GetComponent<IActionPointCost>();
+        if(iActionPointCost!=null)
         {
-            vessel.Init();
-            BloodVesselManager.bloodVesselManager.RefreshAllConnections();
+            if (!GameManager.Instance.HasEnoughPoints(iActionPointCost.ActionPointCost)) return;
+            GameManager.Instance.SpendPoints(iActionPointCost.ActionPointCost);
+            GameObject ins = Instantiate(GetPrefabForBuild(currentBuild), spawnPos, Quaternion.identity, cubeGrid.transform);
+            cubeGrid.whatIsOnMe = ins.transform;
+            cubeGrid.isOccupied = true;
+            // 如果是血管，立即初始化注册并刷新 BFS
+            BloodVessel vessel = ins.GetComponent<BloodVessel>();
+            if (vessel != null)
+            {
+                vessel.Init();
+                BloodVesselManager.bloodVesselManager.RefreshAllConnections();
+            }
         }
+        
+        
+        
+
+        
     }
+
+
 
     public void RemoveBloodVessel(CubeGrid cubeGrid)
     {

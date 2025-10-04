@@ -44,5 +44,9 @@ public class BloodVesselManager : MonoBehaviour
             vessel.isConnected = vessel.CheckConnectivityBFS();
             vessel.UpdateMaterial();
         }
+
+        // 刷新所有收集细胞
+        GlucoseCollectorManager.Instance.RefreshAllCollectors();
     }
+
 }

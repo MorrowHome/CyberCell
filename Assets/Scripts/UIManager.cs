@@ -54,11 +54,11 @@ public class UIManager : MonoBehaviour
 
     void UpdateUI()
     {
-        if (apSlider) apSlider.value = ap;
-        if (apText) apText.text = $"{ap} / {maxAp}";
+        if (apSlider) apSlider.value = GameManager.Instance.actionPoints;
+        if (apText) apText.text = $"{GameManager.Instance.actionPoints} / {GameManager.Instance.maxActionPoints}";
 
         if (glucoseSlider) glucoseSlider.value = glucose;
-        if (glucoseText) glucoseText.text = $"{Mathf.RoundToInt(glucose * 100)}%";
+        if (glucoseText) glucoseText.text = $"{Mathf.RoundToInt(GameManager.Instance.glucoseAmount * 100)}%";
 
         if (defenseText) defenseText.text = $"Defense: Wave {currentWave}";
     }
@@ -69,10 +69,12 @@ public class UIManager : MonoBehaviour
         if (isBuildTurn)
         {
             ShowDefense();
+            GameManager.Instance.TurnTypeSwitch();
         }
         else
         {
             ShowBuild();
+            GameManager.Instance.TurnTypeSwitch();
         }
     }
 
@@ -152,10 +154,6 @@ public class UIManager : MonoBehaviour
     // 测试：按空格恢复 AP（调试用，可删）
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            ap = maxAp;
             UpdateUI();
-        }
     }
 }

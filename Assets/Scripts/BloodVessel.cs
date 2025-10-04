@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BloodVessel : MonoBehaviour
+public class BloodVessel : MonoBehaviour, IActionPointCost
 {
     [SerializeField] private Material connected;
     [SerializeField] private Material disconnected;
     [SerializeField] private GameObject myVisual;
+    [SerializeField] public int actionPointCost = 1;
+    public int ActionPointCost => actionPointCost;
 
     private Transform parentCubeGrid;
     private Vector3 positionVector3;

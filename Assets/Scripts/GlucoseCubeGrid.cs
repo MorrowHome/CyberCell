@@ -10,6 +10,8 @@ public class GlucoseCubeGrid : MonoBehaviour
     [Header("格子引用")]
     [SerializeField] private GameObject emptyGridPrefab; // 普通格子 prefab
 
+
+
     private void Start()
     {
         glucoseAmount = Random.Range(MINAMOUNT, MAXAMOUNT);
@@ -31,11 +33,15 @@ public class GlucoseCubeGrid : MonoBehaviour
             // 使用临时列表避免迭代中修改父对象导致问题
             Transform[] children = new Transform[transform.childCount];
             for (int i = 0; i < transform.childCount; i++)
+            {
+                if(transform.GetChild(i).name == "Visual" || transform.GetChild(i).name != "SelectedVisual") continue;
                 children[i] = transform.GetChild(i);
 
+            }
             foreach (Transform child in children)
             {
                 child.SetParent(newGrid.transform, true); // true 保持世界坐标
+
             }
         }
 

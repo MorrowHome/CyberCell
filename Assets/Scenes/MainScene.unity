@@ -331,7 +331,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   glucoseAmount: 0
-  currentMode: 0
+  actionPoints: 20
+  maxActionPoints: 40
+  actionPointsPerTurn: 20
+  currentTurnType: 0
 --- !u!4 &147414721
 Transform:
   m_ObjectHideFlags: 0
@@ -508,8 +511,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -712,7 +715,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &362203363
 Transform:
   m_ObjectHideFlags: 0
@@ -740,18 +743,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 016d1ef75743fcd4aae9af2815147d0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  apSlider: {fileID: 0}
-  apText: {fileID: 0}
-  glucoseSlider: {fileID: 0}
-  glucoseText: {fileID: 0}
-  defenseText: {fileID: 0}
-  buildPanel: {fileID: 0}
-  defensePanel: {fileID: 0}
-  nextTurnBtn: {fileID: 0}
-  btnBuildVessel: {fileID: 0}
-  btnBuildDefenseCell: {fileID: 0}
-  btnBuildProdCell: {fileID: 0}
-  btnEmergency: {fileID: 0}
+  apSlider: {fileID: 1739869419}
+  apText: {fileID: 1146286910}
+  glucoseSlider: {fileID: 643086162}
+  glucoseText: {fileID: 54237773}
+  defenseText: {fileID: 865907161}
+  buildPanel: {fileID: 1765758687}
+  defensePanel: {fileID: 823049815}
+  nextTurnBtn: {fileID: 407108623}
+  btnBuildVessel: {fileID: 382855985}
+  btnBuildDefenseCell: {fileID: 1312930148}
+  btnBuildProdCell: {fileID: 1227780299}
+  btnEmergency: {fileID: 1160477959}
   ap: 7
   maxAp: 10
   glucose: 0.5
@@ -1178,7 +1181,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8160377, g: 0.8886544, b: 1, a: 1}
   m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 30
@@ -1464,8 +1467,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 612beeadbefd9e04986b2b97619ce40d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BloodVesselManager
-  totalCountOfBloodVessels: 0
-  floatSpeed: 1
 --- !u!4 &540769494
 Transform:
   m_ObjectHideFlags: 0
@@ -1851,7 +1852,7 @@ RectTransform:
   m_Father: {fileID: 2033713220}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1978,8 +1979,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2062,7 +2063,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &779342034
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2096,15 +2097,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.6509804}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 69a1f9103f1bc5d4abfc5ecfcaff6d15, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -2136,7 +2137,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &810066946
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2154,7 +2155,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 514, y: 202}
+  m_AnchoredPosition: {x: 800, y: -468}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &823049815
@@ -2764,7 +2765,7 @@ RectTransform:
   m_Father: {fileID: 885262795}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2856,7 +2857,7 @@ CapsuleCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 0
+  m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5000001
@@ -3194,7 +3195,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1188974197
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3314,7 +3315,7 @@ RectTransform:
   m_Father: {fileID: 692922714}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3629,7 +3630,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1251018070
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3651,7 +3652,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -38, y: 178}
+  m_AnchoredPosition: {x: -826, y: 269}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1301632805
@@ -3853,7 +3854,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1607530287
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3863,7 +3864,7 @@ RectTransform:
   m_GameObject: {fileID: 1607530286}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5627426, y: 0.51729125, z: 0.87625}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1765758688}
@@ -3872,7 +3873,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 947, y: 540}
+  m_AnchoredPosition: {x: 377, y: 247}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1644170373
@@ -3908,7 +3909,7 @@ RectTransform:
   m_Father: {fileID: 1026958150}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4302,8 +4303,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4490,6 +4491,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1943948376}
   m_CullTransparentMesh: 1
+--- !u!1 &2019226567
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2019226568}
+  - component: {fileID: 2019226569}
+  m_Layer: 0
+  m_Name: GlucoseCollectorCellManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2019226568
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2019226567}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1096.3282, y: 712.6944, z: 14.36437}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2019226569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2019226567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4627d8bfb55b734c8992b9e4f2052ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlucoseCollectorManager
 --- !u!1 &2033713219
 GameObject:
   m_ObjectHideFlags: 0
@@ -4544,3 +4589,4 @@ SceneRoots:
   - {fileID: 211357873}
   - {fileID: 1188974200}
   - {fileID: 362203363}
+  - {fileID: 2019226568}
