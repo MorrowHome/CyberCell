@@ -7,6 +7,7 @@ public class GlucoseCollectorCell : MonoBehaviour, IActionPointCost
     [SerializeField] private string glucoseCubeGridTag = "GlucoseCubeGrid";
     [SerializeField] private float glucoseCollectedPerSecond = 1.0f;
     [SerializeField] public int actionPointCost = 3;
+    [SerializeField] private float glucoseConsumptionPerSecond = 1.0f;
 
     private bool isConnected = false;   // 是否连通到心脏
     public int ActionPointCost => actionPointCost;

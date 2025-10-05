@@ -2,59 +2,105 @@ using UnityEngine;
 
 public class GlucoseCubeGrid : MonoBehaviour
 {
-    [Header("资源参数")]
+    [Header("Resource Parameters")]
+    [Tooltip("Current amount of glucose in this cube")]
     [SerializeField] private float glucoseAmount;
-    [SerializeField] private float MINAMOUNT = 50f;
-    [SerializeField] private float MAXAMOUNT = 500f;
+    [Tooltip("Minimum possible glucose amount when spawned")]
+    [SerializeField] private float minAmount = 50f;
+    [Tooltip("Maximum possible glucose amount when spawned")]
+    [SerializeField] private float maxAmount = 500f;
 
-    [Header("格子引用")]
-    [SerializeField] private GameObject emptyGridPrefab; // 普通格子 prefab
-
-
+    [Header("Grid References")]
+    [Tooltip("Prefab for the empty grid that replaces this when depleted")]
+    [SerializeField] private GameObject emptyGridPrefab;
+    [Tooltip("Original children that shouldn't be transferred to new grid")]
+    [SerializeField] private Transform[] originalChildren;
 
     private void Start()
     {
-        glucoseAmount = Random.Range(MINAMOUNT, MAXAMOUNT);
-    }
-
-    private void resourceDepleted()
-    {
-        if (emptyGridPrefab != null)
+        // Cache original children more efficiently
+        originalChildren = new Transform[transform.childCount];
+        for (int i = 0; i < transform.childCount; i++)
         {
-            // 在当前位置生成新的普通格子
-            GameObject newGrid = Instantiate(
-                emptyGridPrefab,
-                transform.position,
-                transform.rotation,
-                transform.parent // 保持父对象一致
-            );
-
-            // 将当前格子的所有子物体迁移到新格子下
-            // 使用临时列表避免迭代中修改父对象导致问题
-            Transform[] children = new Transform[transform.childCount];
-            for (int i = 0; i < transform.childCount; i++)
-            {
-                if(transform.GetChild(i).name == "Visual" || transform.GetChild(i).name != "SelectedVisual") continue;
-                children[i] = transform.GetChild(i);
-
-            }
-            foreach (Transform child in children)
-            {
-                child.SetParent(newGrid.transform, true); // true 保持世界坐标
-
-            }
+            originalChildren[i] = transform.GetChild(i);
         }
 
-        // 删除当前格子
+        // Initialize with random glucose amount
+        glucoseAmount = Random.Range(minAmount, maxAmount);
+    }
+
+    /// <summary>
+    /// Called when the glucose resource is fully depleted
+    /// </summary>
+    private void ResourceDepleted()
+    {
+        if (emptyGridPrefab == null)
+        {
+            Debug.LogError("Empty grid prefab is not assigned!");
+            return;
+        }
+
+        // Create new empty grid
+        GameObject newGrid = Instantiate(
+            emptyGridPrefab,
+            transform.position,
+            transform.rotation,
+            transform.parent
+        );
+
+        // Transfer non-original children to new grid
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Transform child = transform.GetChild(i);
+            if (!IsOriginalChild(child))
+            {
+                child.SetParent(newGrid.transform, true);
+            }
+        }
+        MapGenerator.Instance.Transform_Vector3_Dictionary.TryGetValue(gameObject.transform, out var pos);
+
+        MapGenerator.Instance.Transform_Vector3_Dictionary.Remove(gameObject.transform);
+        MapGenerator.Instance.Vector3_Transform_Dictionary.Remove(pos);
+        MapGenerator.Instance.Transform_Vector3_Dictionary.Add(newGrid.transform, pos);
+        MapGenerator.Instance.Vector3_Transform_Dictionary.Add(pos, newGrid.transform);
+
         Destroy(gameObject);
     }
 
-    public void AmountDecrease(float num)
+    /// <summary>
+    /// Checks if a child is one of the original children
+    /// </summary>
+    private bool IsOriginalChild(Transform child)
     {
-        glucoseAmount -= num;
+        if (originalChildren == null) return false;
+
+        foreach (Transform originalChild in originalChildren)
+        {
+            if (child == originalChild)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Reduces the glucose amount by specified value
+    /// </summary>
+    /// <param name="amount">Amount to decrease</param>
+    public void AmountDecrease(float amount)
+    {
+        if (amount <= 0)
+        {
+            Debug.LogWarning($"Attempted to decrease glucose by invalid amount: {amount}");
+            return;
+        }
+
+        glucoseAmount = Mathf.Max(0, glucoseAmount - amount);
+
         if (glucoseAmount <= 0)
         {
-            resourceDepleted();
+            ResourceDepleted();
         }
     }
 }

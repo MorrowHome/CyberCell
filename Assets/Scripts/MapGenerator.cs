@@ -35,9 +35,12 @@ public class MapGenerator : MonoBehaviour
 
     public Dictionary<Vector3, Transform> Vector3_Transform_Dictionary = new Dictionary<Vector3, Transform>();
     public Dictionary<Transform, Vector3> Transform_Vector3_Dictionary = new Dictionary<Transform, Vector3>();
+    public List<Transform> allGrids = new List<Transform>();
 
     private int ID = 0;
     private bool[,,] resourceMap;  // 记录格子是否是资源格
+
+    public Transform heartCellTransform;
     private void Awake()
     {
         Instance = this;
@@ -75,6 +78,7 @@ public class MapGenerator : MonoBehaviour
                     GameObject prefabToUse = isResource ? cubeGridWithResourcesPrefab : cubeGridPrefab;
 
                     GameObject ins = Instantiate(prefabToUse, position, Quaternion.identity, cubeGridContainer);
+                    allGrids.Add(ins.transform);
                     Vector3_Transform_Dictionary.Add(new Vector3(x,y,z), ins.transform);
                     Transform_Vector3_Dictionary.Add(ins.transform, new Vector3(x, y, z));
                     ins.name = isResource ? $"ResourceCube_{ID++}" : $"Cube_{ID++}";
@@ -126,6 +130,7 @@ public class MapGenerator : MonoBehaviour
         );
         Vector3_Transform_Dictionary.TryGetValue(centerVector3, out Transform cubeGrid);
         GameObject ins = Instantiate(heartCellPrefab, centerPoint, Quaternion.identity, cubeGrid);
+        heartCellTransform = ins.transform;
         cubeGrid.GetComponent<CubeGrid>().whatIsOnMe = ins.transform;
         
     }

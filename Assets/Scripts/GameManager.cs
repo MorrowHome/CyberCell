@@ -56,11 +56,18 @@ public class GameManager : MonoBehaviour
     public void BuildTimeStart()
     {
         actionPoints += actionPointsPerTurn;
+        foreach (var grid in MapGenerator.Instance.allGrids)
+        {
+            grid.GetChild(0).gameObject.SetActive(true);
+        }
     }
 
     public void DefenseTimeStart()
     {
-
+        foreach(var grid in MapGenerator.Instance.allGrids)
+        {
+            grid.GetChild(0).gameObject.SetActive(false);
+        }
     }
 
 

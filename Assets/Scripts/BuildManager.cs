@@ -1,28 +1,35 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class BuildManager : MonoBehaviour
 {
+    public static BuildManager Instance;
+
+
     [SerializeField] private Camera cam;
 
     [Header("НЈдь Prefabs")]
     [SerializeField] private GameObject glucoseCollectorCellPrefab; // 1
     [SerializeField] private GameObject bloodVesselPrefab;          // 2
     [SerializeField] private GameObject wallPrefab;                 // 3
-    [SerializeField] private GameObject towerPrefab;                // 4
+    [SerializeField] private GameObject immuneBCellPrefab;                // 4
 
     [SerializeField] private LayerMask cubeGridLayer;
+
+    public EventHandler OnPlaceSomething;
 
     private Transform lastHoveredCube;
 
     private PlayerInputActions.BuildActions buildActions;
 
-    private enum WhatToBuild { Glucose = 1, BloodVessel = 2, Wall = 3, Tower = 4 }
+    private enum WhatToBuild { Collector = 1, BloodVessel = 2, Wall = 3, Tower = 4 }
 
-    [SerializeField] private WhatToBuild currentBuild = WhatToBuild.Glucose;
+    [SerializeField] private WhatToBuild currentBuild = WhatToBuild.Collector;
 
     private void Awake()
     {
+        Instance = this;
         if (InputManager.Instance == null)
         {
             Debug.LogError("InputManager not found in scene.");
@@ -36,7 +43,7 @@ public class BuildManager : MonoBehaviour
         buildActions = InputManager.Instance.inputActions.Build;
         buildActions.Place.performed += OnPlace;
 
-        buildActions.Select1.performed += ctx => SetCurrentBuild(WhatToBuild.Glucose);
+        buildActions.Select1.performed += ctx => SetCurrentBuild(WhatToBuild.Collector);
         buildActions.Select2.performed += ctx => SetCurrentBuild(WhatToBuild.BloodVessel);
         buildActions.Select3.performed += ctx => SetCurrentBuild(WhatToBuild.Wall);
         buildActions.Select4.performed += ctx => SetCurrentBuild(WhatToBuild.Tower);
@@ -86,6 +93,7 @@ public class BuildManager : MonoBehaviour
         if(iActionPointCost!=null)
         {
             if (!GameManager.Instance.HasEnoughPoints(iActionPointCost.ActionPointCost)) return;
+            OnPlaceSomething?.Invoke(this, EventArgs.Empty);
             GameManager.Instance.SpendPoints(iActionPointCost.ActionPointCost);
             GameObject ins = Instantiate(GetPrefabForBuild(currentBuild), spawnPos, Quaternion.identity, cubeGrid.transform);
             cubeGrid.whatIsOnMe = ins.transform;
@@ -132,10 +140,10 @@ public class BuildManager : MonoBehaviour
     {
         return buildType switch
         {
-            WhatToBuild.Glucose => glucoseCollectorCellPrefab,
+            WhatToBuild.Collector => glucoseCollectorCellPrefab,
             WhatToBuild.BloodVessel => bloodVesselPrefab,
             WhatToBuild.Wall => wallPrefab,
-            WhatToBuild.Tower => towerPrefab,
+            WhatToBuild.Tower => immuneBCellPrefab,
             _ => glucoseCollectorCellPrefab,
         };
     }
