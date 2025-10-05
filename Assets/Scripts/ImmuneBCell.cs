@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using static ImmuneBCell;
 
 public class ImmuneBCell : MonoBehaviour, IActionPointCost
 {
@@ -14,6 +16,10 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
     private float antibodyTimer = 0f;
 
     public int ActionPointCost => actionPointCost;
+
+
+    public enum TargetingMode { Nearest, Strongest, Weakest, Random }
+    private TargetingMode targetingMode;
 
     private void Awake()
     {
@@ -38,32 +44,7 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
         GameManager.Instance.glucoseAmount -= glucoseConsumptionPerSecond * Time.deltaTime;
 
         // Ñ°ÕÒ¸½½ü²¡¶¾
-        Collider[] hits = Physics.OverlapSphere(transform.position, defenseRange);
-        Transform nearestVirus = null;
-        float minDist = Mathf.Infinity;
 
-        foreach (var hit in hits)
-        {
-            if (hit.CompareTag("Virus"))
-            {
-                float dist = Vector3.Distance(transform.position, hit.transform.position);
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    nearestVirus = hit.transform;
-                }
-            }
-        }
-
-        if (nearestVirus != null)
-        {
-            antibodyTimer += Time.deltaTime;
-            if (antibodyTimer >= 1f / antibodyPerSecond)
-            {
-                antibodyTimer = 0f;
-                GenerateAntibody(nearestVirus);
-            }
-        }
     }
 
     private void GenerateAntibody(Transform virus)
@@ -106,4 +87,119 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, defenseRange);
     }
+
+
+
+    private Coroutine attackRoutine;
+
+    private void OnEnable()
+    {
+        attackRoutine = StartCoroutine(AutoFire());
+    }
+    private void OnDisable()
+    {
+        if (attackRoutine != null) StopCoroutine(attackRoutine);
+    }
+
+    private IEnumerator AutoFire()
+    {
+        while (true)
+        {
+            if (isConnected)
+            {
+                Transform virus = null;
+                switch (targetingMode)
+                {
+                    case TargetingMode.Nearest:
+                        virus = FindNearestEnemy();
+                        break;
+                    case TargetingMode.Strongest:
+                        virus = FindNearestEnemy();
+                        break;
+                    case TargetingMode.Weakest:
+                        virus = FindNearestEnemy();
+                        break;
+                    case TargetingMode.Random:
+                        virus = FindNearestEnemy();
+                        break;
+                }
+
+                if (virus)
+                {
+                    GenerateAntibody(virus);
+                    yield return new WaitForSeconds(1f / antibodyPerSecond);
+                }
+            }
+            yield return null;
+        }
+    }
+
+    private Transform FindNearestEnemy()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, defenseRange);
+        Transform nearestVirus = null;
+        float minDist = Mathf.Infinity;
+
+        foreach (var hit in hits)
+        {
+            if (hit.TryGetComponent<IDamageable>(out var dmg))
+            {
+                float dist = Vector3.Distance(transform.position, hit.transform.position);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    nearestVirus = hit.transform;
+                }
+            }
+        }
+        return nearestVirus;
+    }
+    private Transform FindStrongestEnemy()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, defenseRange);
+        Transform nearestVirus = null;
+        float maxHP = 0f;
+
+        foreach (var hit in hits)
+        {
+            if (hit.TryGetComponent<IDamageable>(out var dmg))
+            {
+                float HP = dmg.HP;
+                if (HP > maxHP)
+                {
+                    maxHP = HP;
+                    nearestVirus = hit.transform;
+                }
+            }
+        }
+        return nearestVirus;
+    }
+    private Transform FindWeakestEnemy()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, defenseRange);
+        Transform nearestVirus = null;
+        float minHP = Mathf.Infinity;
+
+        foreach (var hit in hits)
+        {
+            if (hit.TryGetComponent<IDamageable>(out var dmg))
+            {
+                float HP = dmg.HP;
+                if (HP < minHP)
+                {
+                    minHP = HP;
+                    nearestVirus = hit.transform;
+                }
+            }
+        }
+        return nearestVirus;
+    }
+    private Transform FindRandomEnemy()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, defenseRange);
+        int randomNumber = UnityEngine.Random.Range(0, hits.Length);
+        return hits[randomNumber].transform;
+    }
+
+
 }

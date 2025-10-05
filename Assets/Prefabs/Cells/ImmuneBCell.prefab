@@ -158,6 +158,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ImmuneBCell
   actionPointCost: 5
   glucoseConsumptionPerSecond: 2
-  defenseRange: 100
+  defenseRange: 50
   antibodyPerSecond: 2
   antibodyPrefab: {fileID: 7634008779303516491, guid: 3ccdea83281070748a916faf68345218, type: 3}
+  isConnected: 0

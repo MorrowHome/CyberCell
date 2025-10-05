@@ -7,6 +7,7 @@ TagManager:
   - CubeGrid
   - GlucoseCubeGrid
   - ResourceCubeGrid
+  - Virus
   layers:
   - Default
   - TransparentFX

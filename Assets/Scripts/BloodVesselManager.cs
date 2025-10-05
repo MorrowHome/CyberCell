@@ -4,6 +4,7 @@ using UnityEngine;
 public class BloodVesselManager : MonoBehaviour
 {
     public static BloodVesselManager bloodVesselManager;
+    public int bloodVesselCount = 0;
 
     private List<BloodVessel> allBloodVessels = new List<BloodVessel>();
 

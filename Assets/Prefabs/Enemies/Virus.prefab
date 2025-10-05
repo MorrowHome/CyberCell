@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 6021779595074431792}
   - component: {fileID: 6564998148804985550}
   - component: {fileID: 5709853574035695965}
+  - component: {fileID: 7420964248646993112}
   m_Layer: 0
   m_Name: Virus
   m_TagString: Virus
@@ -59,7 +60,7 @@ Transform:
   m_GameObject: {fileID: 1442468286973174651}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.21}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -106,8 +107,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46ed6fcbc94032745bb42ecc91ee420e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Virus
-  target: {fileID: 0}
   speed: 3
+  target: {fileID: 0}
+  HP: 10
+  rb: {fileID: 0}
 --- !u!135 &5709853574035695965
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -123,12 +126,30 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 2
-  m_Center: {x: -2.91, y: 0, z: 0}
+  m_Radius: 3
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7420964248646993112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1442468286973174651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f45d2b5980c3b9d40830e0e660c06fd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VirusVisual
+  visual: {fileID: 2890692411721543661}
+  rotateSpeed: 90
+  wobbleAmplitude: 0.2
+  wobbleSpeed: 2
+  pulseScale: 0.1
+  pulseSpeed: 2
 --- !u!1 &9099088683193935947
 GameObject:
   m_ObjectHideFlags: 0
@@ -179,7 +200,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -334,7 +355,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 5c2aa5f1271c86b40b7016e1f82ff669, type: 3}
       propertyPath: m_Shadows.m_Type
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 5c2aa5f1271c86b40b7016e1f82ff669, type: 3}
       propertyPath: m_Shadows.m_Strength

@@ -1,95 +1,78 @@
 using UnityEngine;
+using System;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("ResourcesCollection")]
-    public float glucoseAmount = 0f;
-
-
     public static GameManager Instance;
 
-    [SerializeField] public int actionPoints = 20;
-    [SerializeField] public int maxActionPoints = 40;
-    [SerializeField] public int actionPointsPerTurn = 20;
-    public enum TurnType
-    {
-        BuildTime = 0,
-        DefenseTime = 1,
+    [Header("Resource Collection")]
+    public float glucoseAmount = 0f;
 
-    }
-    public TurnType currentTurnType = TurnType.BuildTime;
+    [Header("Action Points")]
+    [SerializeField] private int actionPoints = 20;
+    [SerializeField] private int maxActionPoints = 40;
+    [SerializeField] private int actionPointsPerTurn = 20;
 
+    public int ActionPoints => actionPoints;
+    public int MaxActionPoints => maxActionPoints;
+
+    public enum TurnType { BuildTime, DefenseTime }
+    public TurnType CurrentTurn { get; private set; } = TurnType.BuildTime;
+
+    public event Action<TurnType> OnTurnChanged; // 用事件驱动 UI
+    public event Action<int> OnActionPointsChanged;
 
     private void Awake()
     {
         Instance = this;
-        Application.targetFrameRate = 30;
-    }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
+        Application.targetFrameRate = 60;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    public bool HasEnoughPoints(int cost)
-    {
-        return actionPoints >= cost;
-    }
+    // === 行动力管理 ===
+    public bool HasEnoughPoints(int cost) => actionPoints >= cost;
 
     public void SpendPoints(int cost)
     {
-        actionPoints -= cost;
-        if (actionPoints < 0) actionPoints = 0;
+        actionPoints = Mathf.Max(0, actionPoints - cost);
+        OnActionPointsChanged?.Invoke(actionPoints);
     }
 
     public void GainPoints(int amount)
     {
         actionPoints = Mathf.Min(actionPoints + amount, maxActionPoints);
+        OnActionPointsChanged?.Invoke(actionPoints);
     }
 
-    public void BuildTimeStart()
+    // === 回合切换 ===
+    public void SwitchTurn()
     {
-        actionPoints += actionPointsPerTurn;
-        foreach (var grid in MapGenerator.Instance.allGrids)
+        if (CurrentTurn == TurnType.BuildTime)
         {
-            grid.GetChild(0).gameObject.SetActive(true);
-        }
-    }
-
-    public void DefenseTimeStart()
-    {
-        foreach(var grid in MapGenerator.Instance.allGrids)
-        {
-            grid.GetChild(0).gameObject.SetActive(false);
-        }
-    }
-
-
-
-
-
-
-
-    public void TurnTypeSwitch()
-    {
-        if (currentTurnType == TurnType.BuildTime)
-        {
-            currentTurnType = TurnType.DefenseTime;
-            DefenseTimeStart();
+            CurrentTurn = TurnType.DefenseTime;
+            StartDefensePhase();
         }
         else
         {
-            currentTurnType = TurnType.BuildTime;
-            BuildTimeStart();
+            CurrentTurn = TurnType.BuildTime;
+            StartBuildPhase();
         }
+
+        OnTurnChanged?.Invoke(CurrentTurn);
     }
 
+    private void StartBuildPhase()
+    {
+        GainPoints(actionPointsPerTurn);
+        foreach (var grid in MapGenerator.Instance.allGrids)
+            grid.GetChild(0).gameObject.SetActive(true);
+    }
 
+    private void StartDefensePhase()
+    {
+        foreach (var grid in MapGenerator.Instance.allGrids)
+            grid.GetChild(0).gameObject.SetActive(false);
 
+        // 开始敌人波次
+        EnemyManager.Instance.StartNewWave(10);
+    }
 }

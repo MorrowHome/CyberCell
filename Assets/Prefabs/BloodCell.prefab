@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6812052589111918269
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2971799087665847260}
+  m_Layer: 0
+  m_Name: BloodCell
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2971799087665847260
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6812052589111918269}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.020506194, y: -0, z: 0.9997897, w: 0}
+  m_LocalPosition: {x: 214.53143, y: 0, z: 252.9448}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7187540451164316758}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -2.35, z: 180}
+--- !u!1001 &7220955242745758653
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2971799087665847260}
+    m_Modifications:
+    - target: {fileID: -8700617353114198275, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.7763977
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.7660675
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_Color.b
+      value: 0.28193736
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_Intensity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -1990968323811559735, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: ad7aca8cfa093da43abdbf857c983de7, type: 2}
+    - target: {fileID: 919132149155446097, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+      propertyPath: m_Name
+      value: blood cell
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+--- !u!4 &7187540451164316758 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: aa4e1211cf6453c439f93c3cb5a92ec5, type: 3}
+  m_PrefabInstance: {fileID: 7220955242745758653}
+  m_PrefabAsset: {fileID: 0}

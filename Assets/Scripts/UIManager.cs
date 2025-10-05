@@ -16,144 +16,74 @@ public class UIManager : MonoBehaviour
     public GameObject defensePanel;
 
     [Header("Buttons")]
-    public Button nextTurnBtn;  // NEXT TURN 按钮
+    public Button nextTurnBtn;
     public Button btnBuildVessel;
     public Button btnBuildDefenseCell;
     public Button btnBuildProdCell;
     public Button btnEmergency;
 
-    [Header("Game Values")]
-    public int ap = 7;
-    public int maxAp = 10;
-    public float glucose = 0.5f; // 0 ~ 1 (百分比)
-    public int currentWave = 1;
-
-    private bool isBuildTurn = true; // 默认从建造回合开始
-
-    void Start()
+    private void Start()
     {
-        if (apSlider) { apSlider.maxValue = maxAp; apSlider.wholeNumbers = true; }
-        if (glucoseSlider) glucoseSlider.minValue = 0f;
-        if (glucoseSlider) glucoseSlider.maxValue = 1f;
+        // 初始化 UI
+        UpdateActionPoints(GameManager.Instance.ActionPoints);
+        UpdateGlucose(GameManager.Instance.glucoseAmount);
 
-        // 绑定 NEXT TURN 按钮
-        if (nextTurnBtn) nextTurnBtn.onClick.AddListener(OnNextTurn);
+        // 注册事件监听
+        GameManager.Instance.OnTurnChanged += OnTurnChanged;
+        GameManager.Instance.OnActionPointsChanged += UpdateActionPoints;
 
-        // 建造按钮
-        if (btnBuildVessel) btnBuildVessel.onClick.AddListener(OnBuildVessel);
-        if (btnBuildDefenseCell) btnBuildDefenseCell.onClick.AddListener(OnBuildDefenseCell);
-        if (btnBuildProdCell) btnBuildProdCell.onClick.AddListener(OnBuildProdCell);
+        // 按钮绑定
+        nextTurnBtn.onClick.AddListener(OnNextTurn);
+        btnBuildVessel.onClick.AddListener(() => SpendAP(2));
+        btnBuildDefenseCell.onClick.AddListener(() => SpendAP(2));
+        btnBuildProdCell.onClick.AddListener(() => SpendAP(1));
+        btnEmergency.onClick.AddListener(OnEmergency);
 
-        // 紧急按钮
-        if (btnEmergency) btnEmergency.onClick.AddListener(OnEmergency);
-
-        // 初始进入建造回合
-        ShowBuild();
-        UpdateUI();
+        OnTurnChanged(GameManager.Instance.CurrentTurn);
     }
 
-    void UpdateUI()
+    private void OnDestroy()
     {
-        if (apSlider) apSlider.value = GameManager.Instance.actionPoints;
-        if (apText) apText.text = $"{GameManager.Instance.actionPoints} / {GameManager.Instance.maxActionPoints}";
-
-        if (glucoseSlider) glucoseSlider.value = glucose;
-        if (glucoseText) glucoseText.text = $"{Mathf.RoundToInt(GameManager.Instance.glucoseAmount * 100)}%";
-
-        if (defenseText) defenseText.text = $"Defense: Wave {currentWave}";
+        GameManager.Instance.OnTurnChanged -= OnTurnChanged;
+        GameManager.Instance.OnActionPointsChanged -= UpdateActionPoints;
     }
 
-    // 点击 NEXT TURN 按钮
-    public void OnNextTurn()
+    private void OnNextTurn() => GameManager.Instance.SwitchTurn();
+
+    private void OnTurnChanged(GameManager.TurnType turn)
     {
-        if (isBuildTurn)
-        {
-            ShowDefense();
-            GameManager.Instance.TurnTypeSwitch();
-        }
-        else
-        {
-            ShowBuild();
-            GameManager.Instance.TurnTypeSwitch();
-        }
+        bool isBuild = turn == GameManager.TurnType.BuildTime;
+
+        buildPanel.SetActive(isBuild);
+        defensePanel.SetActive(!isBuild);
+        defenseText.text = isBuild ? "Build Phase" : "Defense Phase";
+
+        nextTurnBtn.GetComponentInChildren<TMP_Text>().text =
+            isBuild ? "NEXT TURN → Defense" : "NEXT TURN → Build";
     }
 
-    // 切换到建造回合
-    public void ShowBuild()
+    private void SpendAP(int cost)
     {
-        isBuildTurn = true;
-
-        if (buildPanel) buildPanel.SetActive(true);
-        if (defensePanel) defensePanel.SetActive(false);
-
-        // 回合开始 → AP 恢复满
-        ap = maxAp;
-
-        if (nextTurnBtn) nextTurnBtn.GetComponentInChildren<TMP_Text>().text = "NEXT TURN → Defense";
-        UpdateUI();
+        if (GameManager.Instance.HasEnoughPoints(cost))
+            GameManager.Instance.SpendPoints(cost);
     }
 
-    // 切换到防御回合
-    public void ShowDefense()
+    private void UpdateActionPoints(int ap)
     {
-        isBuildTurn = false;
-
-        if (buildPanel) buildPanel.SetActive(false);
-        if (defensePanel) defensePanel.SetActive(true);
-
-        // 新一波敌人来袭
-        currentWave++;
-
-        if (nextTurnBtn) nextTurnBtn.GetComponentInChildren<TMP_Text>().text = "NEXT TURN → Build";
-        UpdateUI();
+        apSlider.value = ap;
+        apText.text = $"{ap} / {GameManager.Instance.MaxActionPoints}";
     }
 
-    // 建造血管
-    public void OnBuildVessel()
+    private void UpdateGlucose(float amount)
     {
-        if (ap <= 0) return;
-        ap -= 2;
-        glucose -= 0.05f;
-        if (glucose < 0) glucose = 0;
-        UpdateUI();
+        glucoseSlider.value = amount;
+        glucoseText.text = $"{Mathf.RoundToInt(amount * 100)}%";
     }
 
-    // 建造防御细胞
-    public void OnBuildDefenseCell()
+    private void OnEmergency()
     {
-        if (ap <= 0) return;
-        ap -= 2;
-        glucose -= 0.08f;
-        if (glucose < 0) glucose = 0;
-        UpdateUI();
-    }
-
-    // 建造生产细胞
-    public void OnBuildProdCell()
-    {
-        if (ap <= 0) return;
-        ap -= 1;
-        glucose += 0.1f;
-        if (glucose > 1f) glucose = 1f;
-        UpdateUI();
-    }
-
-    // 紧急操作（例如释放一次防御技能，不切回合）
-    public void OnEmergency()
-    {
-        // 消耗所有 AP
-        ap = 0;
-
-        // 示例：紧急技能可以恢复一点血糖/触发特效
-        glucose += 0.2f;
-        if (glucose > 1f) glucose = 1f;
-
-        UpdateUI();
-    }
-
-    // 测试：按空格恢复 AP（调试用，可删）
-    void Update()
-    {
-            UpdateUI();
+        GameManager.Instance.SpendPoints(GameManager.Instance.ActionPoints);
+        GameManager.Instance.glucoseAmount = Mathf.Min(1f, GameManager.Instance.glucoseAmount + 0.2f);
+        UpdateGlucose(GameManager.Instance.glucoseAmount);
     }
 }
