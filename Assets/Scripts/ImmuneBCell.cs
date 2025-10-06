@@ -29,6 +29,7 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
     void Start()
     {
         BuildManager.Instance.OnPlaceSomething += BuildManager_OnOnPlaceSomething;
+        isConnected = CheckConnectionToBloodVessel();
     }
 
     private void BuildManager_OnOnPlaceSomething(object sender, EventArgs e)
@@ -114,13 +115,13 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
                         virus = FindNearestEnemy();
                         break;
                     case TargetingMode.Strongest:
-                        virus = FindNearestEnemy();
+                        virus = FindStrongestEnemy();
                         break;
                     case TargetingMode.Weakest:
-                        virus = FindNearestEnemy();
+                        virus = FindWeakestEnemy();
                         break;
                     case TargetingMode.Random:
-                        virus = FindNearestEnemy();
+                        virus = FindRandomEnemy();
                         break;
                 }
 

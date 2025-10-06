@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46ed6fcbc94032745bb42ecc91ee420e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Virus
-  speed: 3
+  speed: 10
   target: {fileID: 0}
   HP: 10
   rb: {fileID: 0}

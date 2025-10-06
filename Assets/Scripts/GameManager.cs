@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int actionPoints = 20;
     [SerializeField] private int maxActionPoints = 40;
     [SerializeField] private int actionPointsPerTurn = 20;
+    [SerializeField] private float glucoseConcentration = 500f;
+
+    public float GlucoseConcentration => glucoseConcentration;
 
     public int ActionPoints => actionPoints;
     public int MaxActionPoints => maxActionPoints;
@@ -21,6 +24,11 @@ public class GameManager : MonoBehaviour
 
     public event Action<TurnType> OnTurnChanged; // 用事件驱动 UI
     public event Action<int> OnActionPointsChanged;
+
+    private void Update()
+    {
+        glucoseConcentration = glucoseAmount / BloodVesselManager.bloodVesselManager.bloodVesselCount;
+    }
 
     private void Awake()
     {
@@ -73,6 +81,6 @@ public class GameManager : MonoBehaviour
             grid.GetChild(0).gameObject.SetActive(false);
 
         // 开始敌人波次
-        EnemyManager.Instance.StartNewWave(10);
+        EnemyManager.Instance.StartNewWave(4);
     }
 }

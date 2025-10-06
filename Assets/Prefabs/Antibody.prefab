@@ -135,9 +135,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9096f6effaa244b4ab8f7a133aabe3f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Antibody
-  speed: 10
+  speed: 20
   lifeTime: 20
-  collider: {fileID: 0}
+  searchRange: 50
+  jitterStrength: 4.58
+  jitterFrequency: 2.28
+  snakeAmplitude: 1.13
+  snakeFrequency: 9.08
 --- !u!135 &6500258346538443543
 SphereCollider:
   m_ObjectHideFlags: 0

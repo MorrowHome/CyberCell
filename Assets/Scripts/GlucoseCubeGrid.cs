@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GlucoseCubeGrid : MonoBehaviour
@@ -18,7 +19,7 @@ public class GlucoseCubeGrid : MonoBehaviour
 
     private void Start()
     {
-        // Cache original children more efficiently
+        // Cache original children
         originalChildren = new Transform[transform.childCount];
         for (int i = 0; i < transform.childCount; i++)
         {
@@ -40,7 +41,7 @@ public class GlucoseCubeGrid : MonoBehaviour
             return;
         }
 
-        // Create new empty grid
+        // Instantiate new empty grid (as replacement)
         GameObject newGrid = Instantiate(
             emptyGridPrefab,
             transform.position,
@@ -48,21 +49,48 @@ public class GlucoseCubeGrid : MonoBehaviour
             transform.parent
         );
 
-        // Transfer non-original children to new grid
-        for (int i = 0; i < transform.childCount; i++)
+        // Collect non-original children first (避免在遍历时修改 transform.childCount 导致跳过)
+        List<Transform> childrenToMove = new List<Transform>();
+        for (int i = transform.childCount - 1; i >= 0; i--)
         {
             Transform child = transform.GetChild(i);
             if (!IsOriginalChild(child))
             {
-                child.SetParent(newGrid.transform, true);
+                childrenToMove.Add(child);
             }
         }
-        MapGenerator.Instance.Transform_Vector3_Dictionary.TryGetValue(gameObject.transform, out var pos);
 
-        MapGenerator.Instance.Transform_Vector3_Dictionary.Remove(gameObject.transform);
-        MapGenerator.Instance.Vector3_Transform_Dictionary.Remove(pos);
-        MapGenerator.Instance.Transform_Vector3_Dictionary.Add(newGrid.transform, pos);
-        MapGenerator.Instance.Vector3_Transform_Dictionary.Add(pos, newGrid.transform);
+        // Move them to new grid
+        foreach (var child in childrenToMove)
+        {
+            child.SetParent(newGrid.transform, true);
+        }
+
+        // 安全更新 MapGenerator 的字典（先检查存在与否）
+        if (MapGenerator.Instance != null)
+        {
+            if (MapGenerator.Instance.Transform_Vector3_Dictionary.TryGetValue(transform, out var pos))
+            {
+                MapGenerator.Instance.Transform_Vector3_Dictionary.Remove(transform);
+                MapGenerator.Instance.Vector3_Transform_Dictionary.Remove(pos);
+
+                MapGenerator.Instance.Transform_Vector3_Dictionary.Add(newGrid.transform, pos);
+                MapGenerator.Instance.Vector3_Transform_Dictionary.Add(pos, newGrid.transform);
+            }
+            else
+            {
+                Debug.LogWarning("MapGenerator dictionaries didn't contain this transform when ResourceDepleted ran.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("MapGenerator.Instance is null when ResourceDepleted ran.");
+        }
+
+        if (BloodVesselManager.bloodVesselManager != null)
+        {
+            BloodVesselManager.bloodVesselManager.RefreshAllConnections();
+        }
 
         Destroy(gameObject);
     }
@@ -76,10 +104,7 @@ public class GlucoseCubeGrid : MonoBehaviour
 
         foreach (Transform originalChild in originalChildren)
         {
-            if (child == originalChild)
-            {
-                return true;
-            }
+            if (originalChild == child) return true;
         }
         return false;
     }
@@ -96,9 +121,9 @@ public class GlucoseCubeGrid : MonoBehaviour
             return;
         }
 
-        glucoseAmount = Mathf.Max(0, glucoseAmount - amount);
+        glucoseAmount = Mathf.Max(0f, glucoseAmount - amount);
 
-        if (glucoseAmount <= 0)
+        if (glucoseAmount <= 0f)
         {
             ResourceDepleted();
         }

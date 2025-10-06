@@ -26,7 +26,7 @@ public class UIManager : MonoBehaviour
     {
         // 初始化 UI
         UpdateActionPoints(GameManager.Instance.ActionPoints);
-        UpdateGlucose(GameManager.Instance.glucoseAmount);
+
 
         // 注册事件监听
         GameManager.Instance.OnTurnChanged += OnTurnChanged;
@@ -40,6 +40,11 @@ public class UIManager : MonoBehaviour
         btnEmergency.onClick.AddListener(OnEmergency);
 
         OnTurnChanged(GameManager.Instance.CurrentTurn);
+    }
+
+    private void Update()
+    {
+        UpdateGlucose(GameManager.Instance.GlucoseConcentration);
     }
 
     private void OnDestroy()
@@ -77,7 +82,7 @@ public class UIManager : MonoBehaviour
     private void UpdateGlucose(float amount)
     {
         glucoseSlider.value = amount;
-        glucoseText.text = $"{Mathf.RoundToInt(amount * 100)}%";
+        glucoseText.text = $"{Mathf.RoundToInt(amount)}%";
     }
 
     private void OnEmergency()

@@ -4,10 +4,10 @@ using UnityEngine;
 public class BloodVesselManager : MonoBehaviour
 {
     public static BloodVesselManager bloodVesselManager;
-    public int bloodVesselCount = 0;
+    
 
     private List<BloodVessel> allBloodVessels = new List<BloodVessel>();
-
+    public int bloodVesselCount = 0;
     private void Awake()
     {
         bloodVesselManager = this;
@@ -21,6 +21,7 @@ public class BloodVesselManager : MonoBehaviour
         if (!allBloodVessels.Contains(vessel))
         {
             allBloodVessels.Add(vessel);
+            bloodVesselCount = allBloodVessels.Count;
         }
     }
 
@@ -32,6 +33,7 @@ public class BloodVesselManager : MonoBehaviour
         if (allBloodVessels.Contains(vessel))
         {
             allBloodVessels.Remove(vessel);
+            bloodVesselCount = allBloodVessels.Count;
         }
     }
 

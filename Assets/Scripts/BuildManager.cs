@@ -93,7 +93,7 @@ public class BuildManager : MonoBehaviour
         if(iActionPointCost!=null)
         {
             if (!GameManager.Instance.HasEnoughPoints(iActionPointCost.ActionPointCost)) return;
-            OnPlaceSomething?.Invoke(this, EventArgs.Empty);
+            
             GameManager.Instance.SpendPoints(iActionPointCost.ActionPointCost);
             GameObject ins = Instantiate(GetPrefabForBuild(currentBuild), spawnPos, Quaternion.identity, cubeGrid.transform);
             cubeGrid.whatIsOnMe = ins.transform;
@@ -103,8 +103,10 @@ public class BuildManager : MonoBehaviour
             if (vessel != null)
             {
                 vessel.Init();
-                BloodVesselManager.bloodVesselManager.RefreshAllConnections();
+                
             }
+            BloodVesselManager.bloodVesselManager.RefreshAllConnections();
+            OnPlaceSomething?.Invoke(this, EventArgs.Empty);
         }
         
         
