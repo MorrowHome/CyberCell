@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int maxActionPoints = 40;
     [SerializeField] private int actionPointsPerTurn = 20;
     [SerializeField] private float glucoseConcentration = 500f;
+    private int waveCounts = 0;
 
     public float GlucoseConcentration => glucoseConcentration;
 
@@ -54,6 +55,7 @@ public class GameManager : MonoBehaviour
     // === 回合切换 ===
     public void SwitchTurn()
     {
+        waveCounts++;
         if (CurrentTurn == TurnType.BuildTime)
         {
             CurrentTurn = TurnType.DefenseTime;
@@ -71,16 +73,23 @@ public class GameManager : MonoBehaviour
     private void StartBuildPhase()
     {
         GainPoints(actionPointsPerTurn);
-        foreach (var grid in MapGenerator.Instance.allGrids)
-            grid.GetChild(0).gameObject.SetActive(true);
+        //foreach (var grid in MapGenerator.Instance.allGrids)
+        //{
+        //    grid.transform.TryGetComponent<CubeGrid>(out var cubeGrid);
+        //    cubeGrid.myVisual.TryGetComponent<MeshRenderer>(out var aaa);
+        //    aaa.enabled = true;
+        //}
+        ObjectPool.Instance.AsleepAll();
     }
 
     private void StartDefensePhase()
     {
-        foreach (var grid in MapGenerator.Instance.allGrids)
-            grid.GetChild(0).gameObject.SetActive(false);
-
-        // 开始敌人波次
-        EnemyManager.Instance.StartNewWave(4);
+        //foreach (var grid in MapGenerator.Instance.allGrids)
+        //{
+        //    grid.transform.TryGetComponent<CubeGrid>(out var cubeGrid);
+        //    cubeGrid.myVisual.TryGetComponent<MeshRenderer>(out var aaa);
+        //    aaa.enabled = false;
+        //}
+        EnemyManager.Instance.StartNewWave(waveCounts * 10);
     }
 }

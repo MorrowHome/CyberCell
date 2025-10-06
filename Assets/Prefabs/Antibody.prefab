@@ -137,11 +137,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Antibody
   speed: 20
   lifeTime: 20
-  searchRange: 50
-  jitterStrength: 4.58
-  jitterFrequency: 2.28
-  snakeAmplitude: 1.13
-  snakeFrequency: 9.08
+  searchRange: 500
+  jitterStrength: 20
+  jitterFrequency: 5
+  snakeAmplitude: 20
+  snakeFrequency: 2
+  damage: 2
 --- !u!135 &6500258346538443543
 SphereCollider:
   m_ObjectHideFlags: 0

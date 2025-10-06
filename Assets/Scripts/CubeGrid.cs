@@ -4,13 +4,14 @@ public class CubeGrid : MonoBehaviour
 {
     public bool isOccupied = false;
     [SerializeField] private BoxCollider boxCollider;
+    public Transform myVisual;
 
 
     public Transform whatIsOnMe;
 
     private void Awake()
     {
-        Transform myVisual = transform.Find("Visual");
+        myVisual = transform.Find("Visual");
         boxCollider = myVisual.GetComponent<BoxCollider>();
     }
 

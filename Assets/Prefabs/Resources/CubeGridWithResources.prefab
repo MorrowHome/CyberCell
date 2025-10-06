@@ -49,12 +49,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GlucoseResource
   glucoseAmount: 0
-  MINAMOUNT: 50
-  MAXAMOUNT: 500
+  minAmount: 50
+  maxAmount: 500
   emptyGridPrefab: {fileID: 1641050591842949772, guid: b8283c9214fb917419ac819060a607db, type: 3}
-  myChildrens:
-  - {fileID: 8262706875501495743}
-  - {fileID: 5549492981326743761}
+  originalChildren: []
 --- !u!114 &4046141991939839921
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,6 +67,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CubeGrid
   isOccupied: 0
   boxCollider: {fileID: 225702886392907712}
+  myVisual: {fileID: 8262706875501495743}
   whatIsOnMe: {fileID: 0}
 --- !u!114 &4334422061533989429
 MonoBehaviour:

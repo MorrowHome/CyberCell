@@ -49,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CubeGrid
   isOccupied: 0
   boxCollider: {fileID: 225702886392907712}
+  myVisual: {fileID: 8262706875501495743}
   whatIsOnMe: {fileID: 0}
 --- !u!114 &86119357344432368
 MonoBehaviour:

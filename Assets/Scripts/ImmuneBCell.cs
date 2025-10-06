@@ -10,6 +10,12 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
     [SerializeField] private float defenseRange = 5;
     [SerializeField] private float antibodyPerSecond = 2;
     [SerializeField] private GameObject antibodyPrefab;
+    [SerializeField] private Transform objectPool;
+    [SerializeField] private float maxHungryTime = 5f;
+    [SerializeField] private float hungryTimer = 0f;
+
+    private bool hasEnoughGlucose;
+
 
     private Transform parentCubeGrid;
     [SerializeField] private bool isConnected = false;
@@ -39,10 +45,25 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
 
     void Update()
     {
+        if (GameManager.Instance.CurrentTurn != GameManager.TurnType.DefenseTime) return;
         if (!isConnected) return;
 
         // 消耗葡萄糖
-        GameManager.Instance.glucoseAmount -= glucoseConsumptionPerSecond * Time.deltaTime;
+        hasEnoughGlucose = (GameManager.Instance.glucoseAmount > glucoseConsumptionPerSecond * Time.deltaTime);
+        if (hasEnoughGlucose)
+        {
+            GameManager.Instance.glucoseAmount -= glucoseConsumptionPerSecond * Time.deltaTime;
+            hungryTimer = 0;
+        }
+        else
+        {
+            hungryTimer += Time.deltaTime;
+            if(hungryTimer >= maxHungryTime)
+            {
+                Destroy(gameObject);
+            }
+        }
+        
 
         // 寻找附近病毒
 
@@ -50,11 +71,17 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
 
     private void GenerateAntibody(Transform virus)
     {
-        if (antibodyPrefab == null) return;
+        if (antibodyPrefab == null || virus == null) return;
 
-        GameObject antibody = Instantiate(antibodyPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
-        antibody.GetComponent<Antibody>().SetTarget(virus);
+        GameObject antibody = ObjectPool.Instance.GetFromPool(
+                    transform.position + Vector3.up * 0.5f,
+                    Quaternion.identity
+                );
+
+        if (antibody != null)
+            antibody.GetComponent<Antibody>().SetTarget(virus);
     }
+
 
     private bool CheckConnectionToBloodVessel()
     {
@@ -125,15 +152,23 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
                         break;
                 }
 
-                if (virus)
+                if (virus != null)
                 {
                     GenerateAntibody(virus);
                     yield return new WaitForSeconds(1f / antibodyPerSecond);
                 }
+                else
+                {
+                    yield return null; // 没有敌人时等待下一帧
+                }
             }
-            yield return null;
+            else
+            {
+                yield return null; // 不连通时等待
+            }
         }
     }
+
 
     private Transform FindNearestEnemy()
     {
@@ -173,7 +208,7 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
                 }
             }
         }
-        return nearestVirus;
+        return nearestVirus; 
     }
     private Transform FindWeakestEnemy()
     {
@@ -198,9 +233,20 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
     private Transform FindRandomEnemy()
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, defenseRange);
-        int randomNumber = UnityEngine.Random.Range(0, hits.Length);
-        return hits[randomNumber].transform;
+        if (hits.Length == 0) return null;
+
+        // 只返回有 IDamageable 的敌人
+        var validHits = new System.Collections.Generic.List<Collider>();
+        foreach (var hit in hits)
+            if (hit.TryGetComponent<IDamageable>(out var _))
+                validHits.Add(hit);
+
+        if (validHits.Count == 0) return null;
+
+        int randomNumber = UnityEngine.Random.Range(0, validHits.Count);
+        return validHits[randomNumber].transform;
     }
+
 
 
 }

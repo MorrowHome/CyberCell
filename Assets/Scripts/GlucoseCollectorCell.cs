@@ -17,6 +17,8 @@ public class GlucoseCollectorCell : MonoBehaviour, IActionPointCost
     [SerializeField] private float bestGlucoseConcentration = 500f;
     [SerializeField] private float maxGlucoseConcentration = 100000f;
 
+    
+
     private bool isConnected = false;   // 是否连通到心脏
     public int ActionPointCost => actionPointCost;
 
@@ -70,7 +72,7 @@ public class GlucoseCollectorCell : MonoBehaviour, IActionPointCost
         CalculateVitalityFactor();
 
         // 只有连通且父格属于 glucose cube grid 时才持续收集
-        if (!isConnected || parentCubeGrid == null || parentCubeGrid.tag != glucoseCubeGridTag) return;
+        if (!isConnected || parentCubeGrid == null || parentCubeGrid.tag != glucoseCubeGridTag || GameManager.Instance.CurrentTurn != GameManager.TurnType.DefenseTime) return;
 
         // 缓存 GlucoseCubeGrid，父格可能被替换（比如资源耗尽时）
         if (cachedGlucoseGrid == null || cachedGlucoseGrid.transform != parentCubeGrid)

@@ -444,6 +444,24 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""BuildMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""91101944-cfdf-4760-adbd-9dd1b7642d4b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DeleteMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""1a4a0b1b-931a-470a-85d7-63e629461b12"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -501,6 +519,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Place"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d35cbfb8-a2ec-45cb-8965-28cfc64aad9a"",
+                    ""path"": ""<Keyboard>/b"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""BuildMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""74b23942-6e60-47b9-993d-c12ffed949cb"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DeleteMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -532,6 +572,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Build_Select3 = m_Build.FindAction("Select3", throwIfNotFound: true);
         m_Build_Select4 = m_Build.FindAction("Select4", throwIfNotFound: true);
         m_Build_Place = m_Build.FindAction("Place", throwIfNotFound: true);
+        m_Build_BuildMode = m_Build.FindAction("BuildMode", throwIfNotFound: true);
+        m_Build_DeleteMode = m_Build.FindAction("DeleteMode", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -1007,6 +1049,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Build_Select3;
     private readonly InputAction m_Build_Select4;
     private readonly InputAction m_Build_Place;
+    private readonly InputAction m_Build_BuildMode;
+    private readonly InputAction m_Build_DeleteMode;
     /// <summary>
     /// Provides access to input actions defined in input action map "Build".
     /// </summary>
@@ -1038,6 +1082,14 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Build/Place".
         /// </summary>
         public InputAction @Place => m_Wrapper.m_Build_Place;
+        /// <summary>
+        /// Provides access to the underlying input action "Build/BuildMode".
+        /// </summary>
+        public InputAction @BuildMode => m_Wrapper.m_Build_BuildMode;
+        /// <summary>
+        /// Provides access to the underlying input action "Build/DeleteMode".
+        /// </summary>
+        public InputAction @DeleteMode => m_Wrapper.m_Build_DeleteMode;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1079,6 +1131,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Place.started += instance.OnPlace;
             @Place.performed += instance.OnPlace;
             @Place.canceled += instance.OnPlace;
+            @BuildMode.started += instance.OnBuildMode;
+            @BuildMode.performed += instance.OnBuildMode;
+            @BuildMode.canceled += instance.OnBuildMode;
+            @DeleteMode.started += instance.OnDeleteMode;
+            @DeleteMode.performed += instance.OnDeleteMode;
+            @DeleteMode.canceled += instance.OnDeleteMode;
         }
 
         /// <summary>
@@ -1105,6 +1163,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Place.started -= instance.OnPlace;
             @Place.performed -= instance.OnPlace;
             @Place.canceled -= instance.OnPlace;
+            @BuildMode.started -= instance.OnBuildMode;
+            @BuildMode.performed -= instance.OnBuildMode;
+            @BuildMode.canceled -= instance.OnBuildMode;
+            @DeleteMode.started -= instance.OnDeleteMode;
+            @DeleteMode.performed -= instance.OnDeleteMode;
+            @DeleteMode.canceled -= instance.OnDeleteMode;
         }
 
         /// <summary>
@@ -1288,5 +1352,19 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPlace(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "BuildMode" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBuildMode(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DeleteMode" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDeleteMode(InputAction.CallbackContext context);
     }
 }

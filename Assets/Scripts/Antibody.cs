@@ -16,8 +16,10 @@ public class Antibody : MonoBehaviour
     private Transform target;
     private float timeAlive = 0f;
 
-    private float searchCooldown = 0.5f;
+    private float searchCooldown = 0.1f;
     private float searchTimer = 0f;
+
+    [SerializeField] private float damage = 2f;
 
     private Vector3 baseDirection; // 用于平滑旋转时的参考
 
@@ -31,7 +33,7 @@ public class Antibody : MonoBehaviour
         timeAlive += Time.deltaTime;
         if (timeAlive > lifeTime)
         {
-            Destroy(gameObject);
+            ObjectPool.Instance.ReturnToPool(gameObject);
             return;
         }
 
@@ -72,8 +74,9 @@ public class Antibody : MonoBehaviour
     {
         if (other.TryGetComponent<IDamageable>(out var dmg))
         {
-            dmg.TakeDamage(1f);
-            Destroy(gameObject);
+            dmg.TakeDamage(damage);
+            ObjectPool.Instance.ReturnToPool(gameObject);
+
         }
     }
 
