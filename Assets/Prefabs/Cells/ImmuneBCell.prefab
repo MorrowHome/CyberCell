@@ -272,9 +272,12 @@ MonoBehaviour:
   actionPointCost: 5
   glucoseConsumptionPerSecond: 2
   defenseRange: 100
-  antibodyPerSecond: 2
+  antibodyPerSecond: 5
   antibodyPrefab: {fileID: 7634008779303516491, guid: 3ccdea83281070748a916faf68345218, type: 3}
   objectPool: {fileID: 0}
+  maxHungryTime: 5
+  hungryTimer: 0
+  currentVirus: {fileID: 0}
   isConnected: 0
 --- !u!114 &8036735289457198448
 MonoBehaviour:

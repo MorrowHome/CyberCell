@@ -138,10 +138,9 @@ MonoBehaviour:
   speed: 20
   lifeTime: 20
   searchRange: 500
-  jitterStrength: 20
-  jitterFrequency: 5
-  snakeAmplitude: 20
-  snakeFrequency: 2
+  jitterStrength: 0
+  snakeAmplitude: 50
+  snakeFrequency: 1
   damage: 2
 --- !u!135 &6500258346538443543
 SphereCollider:

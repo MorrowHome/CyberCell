@@ -1,83 +1,75 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPool : MonoBehaviour
+/// <summary>
+/// 全局对象池管理器（多Prefab版本）
+/// </summary>
+
+
+public class ObjectPool
 {
-    [SerializeField] private GameObject prefab;
-    [SerializeField] private int initialSize = 20;
+    private readonly GameObject prefab;
+    private readonly Transform parent;
+    private readonly Queue<GameObject> available = new();
+    private readonly HashSet<GameObject> active = new();
+    private int totalCreated;
+    private const int ExpandStep = 5;
 
-    private readonly Queue<GameObject> pool = new Queue<GameObject>();
-    private readonly List<GameObject> activeObjects = new List<GameObject>();
-
-    public static ObjectPool Instance;
-
-    private void Awake()
+    public ObjectPool(GameObject prefab, Transform parent, int initialSize)
     {
-        Instance = this;
-        FillPool();
+        this.prefab = prefab;
+        this.parent = parent;
+        Expand(initialSize);
     }
 
-    private void FillPool()
-    {
-        for (int i = 0; i < initialSize; i++)
-        {
-            GameObject obj = Instantiate(prefab, transform);
-            obj.SetActive(false);
-            pool.Enqueue(obj);
-        }
-    }
-
-    public GameObject GetFromPool(Vector3 position, Quaternion rotation)
-    {
-        if (pool.Count == 0)
-            ExpandPool(5);
-
-        GameObject obj = pool.Dequeue();
-        obj.transform.position = position;
-        obj.transform.rotation = rotation;
-        obj.SetActive(true);
-
-        activeObjects.Add(obj); // 记录已借出对象
-        return obj;
-    }
-
-    public void ReturnToPool(GameObject obj)
-    {
-        if (activeObjects.Contains(obj))
-            activeObjects.Remove(obj);
-
-        obj.SetActive(false);
-        pool.Enqueue(obj);
-    }
-
-    private void ExpandPool(int count)
+    private void Expand(int count)
     {
         for (int i = 0; i < count; i++)
         {
-            GameObject obj = Instantiate(prefab, transform);
+            var obj = Object.Instantiate(prefab, parent);
             obj.SetActive(false);
-            pool.Enqueue(obj);
+            available.Enqueue(obj);
+            totalCreated++;
         }
     }
 
-    /// <summary>
-    /// 让所有对象都休眠（包括正在使用的）
-    /// </summary>
+    public GameObject Get(Vector3 position, Quaternion rotation)
+    {
+        if (available.Count == 0)
+            Expand(ExpandStep);
+
+        var obj = available.Dequeue();
+        obj.transform.SetPositionAndRotation(position, rotation);
+        obj.SetActive(true);
+        active.Add(obj);
+        return obj;
+    }
+
+    public void Return(GameObject obj)
+    {
+        if (obj == null) return;
+        if (!active.Contains(obj)) return;
+
+        active.Remove(obj);
+        obj.SetActive(false);
+        available.Enqueue(obj);
+    }
+
     public void AsleepAll()
     {
-        // 1. 关闭所有活跃对象
-        foreach (var obj in activeObjects)
+        foreach (var obj in active)
         {
-            obj.SetActive(false);
-            pool.Enqueue(obj); // 回收
+            if (obj != null)
+            {
+                obj.SetActive(false);
+                available.Enqueue(obj);
+            }
         }
+        active.Clear();
+    }
 
-        activeObjects.Clear();
-
-        // 2. 确保池中对象也处于关闭状态
-        foreach (var obj in pool)
-        {
-            obj.SetActive(false);
-        }
+    public string PoolCountDebug()
+    {
+        return $"Active: {active.Count}, Available: {available.Count}, TotalCreated: {totalCreated}";
     }
 }

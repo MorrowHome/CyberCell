@@ -73,23 +73,23 @@ public class GameManager : MonoBehaviour
     private void StartBuildPhase()
     {
         GainPoints(actionPointsPerTurn);
-        //foreach (var grid in MapGenerator.Instance.allGrids)
-        //{
-        //    grid.transform.TryGetComponent<CubeGrid>(out var cubeGrid);
-        //    cubeGrid.myVisual.TryGetComponent<MeshRenderer>(out var aaa);
-        //    aaa.enabled = true;
-        //}
-        ObjectPool.Instance.AsleepAll();
+        foreach (var grid in MapGenerator.Instance.allGrids)
+        {
+            grid.transform.TryGetComponent<CubeGrid>(out var cubeGrid);
+            cubeGrid.myVisual.TryGetComponent<MeshRenderer>(out var aaa);
+            aaa.enabled = true;
+        }
+        ObjectPoolManager.Instance.AsleepAll();
     }
 
     private void StartDefensePhase()
     {
-        //foreach (var grid in MapGenerator.Instance.allGrids)
-        //{
-        //    grid.transform.TryGetComponent<CubeGrid>(out var cubeGrid);
-        //    cubeGrid.myVisual.TryGetComponent<MeshRenderer>(out var aaa);
-        //    aaa.enabled = false;
-        //}
+        foreach (var grid in MapGenerator.Instance.allGrids)
+        {
+            grid.transform.TryGetComponent<CubeGrid>(out var cubeGrid);
+            cubeGrid.myVisual.TryGetComponent<MeshRenderer>(out var aaa);
+            aaa.enabled = false;
+        }
         EnemyManager.Instance.StartNewWave(waveCounts * 10);
     }
 }

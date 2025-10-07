@@ -48,6 +48,8 @@ public class GlucoseCubeGrid : MonoBehaviour
             transform.rotation,
             transform.parent
         );
+        newGrid.transform.TryGetComponent<CubeGrid>(out var aaa);
+        aaa.isOccupied = true;
 
         // Collect non-original children first (避免在遍历时修改 transform.childCount 导致跳过)
         List<Transform> childrenToMove = new List<Transform>();
@@ -76,6 +78,8 @@ public class GlucoseCubeGrid : MonoBehaviour
 
                 MapGenerator.Instance.Transform_Vector3_Dictionary.Add(newGrid.transform, pos);
                 MapGenerator.Instance.Vector3_Transform_Dictionary.Add(pos, newGrid.transform);
+                MapGenerator.Instance.allGrids.Remove(transform);
+                MapGenerator.Instance.allGrids.Add(newGrid.transform);
             }
             else
             {

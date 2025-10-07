@@ -2,72 +2,55 @@ using UnityEngine;
 
 public class Antibody : MonoBehaviour
 {
-    [Header("Movement Settings")]
+    [Header("移动参数")]
     [SerializeField] private float speed = 10f;
-    [SerializeField] private float lifeTime = 5f; // 最长生存时间
-    [SerializeField] private float searchRange = 10f; // 自动寻找范围
+    [SerializeField] private float lifeTime = 5f;
+    [SerializeField] private float searchRange = 10f;
 
-    [Header("Motion Effects")]
-    [SerializeField] private float jitterStrength = 0.2f;   // 抖动幅度
-    [SerializeField] private float jitterFrequency = 2f;    // 抖动频率
-    [SerializeField] private float snakeAmplitude = 0.2f;   // 蛇形幅度
-    [SerializeField] private float snakeFrequency = 8f;     // 蛇形频率
+    [Header("运动效果")]
+    [SerializeField] private float jitterStrength = 0.2f;
+    [SerializeField] private float snakeAmplitude = 0.2f;
+    [SerializeField] private float snakeFrequency = 8f;
 
-    private Transform target;
-    private float timeAlive = 0f;
-
-    private float searchCooldown = 0.1f;
-    private float searchTimer = 0f;
-
+    [Header("伤害参数")]
     [SerializeField] private float damage = 2f;
 
-    private Vector3 baseDirection; // 用于平滑旋转时的参考
+    private Transform target;
+    private GameObject prefabRef;
+    private float timeAlive;
 
-    public void SetTarget(Transform virusTarget)
+    public void Init(GameObject prefab)
     {
-        target = virusTarget;
+        prefabRef = prefab;
+        timeAlive = 0f;
+        target = null;
     }
 
-    void Update()
+    public void SetTarget(Transform t)
+    {
+        target = t;
+    }
+
+    private void Update()
     {
         timeAlive += Time.deltaTime;
-        if (timeAlive > lifeTime)
+        if (timeAlive >= lifeTime)
         {
-            ObjectPool.Instance.ReturnToPool(gameObject);
+            ReturnToPool();
             return;
         }
 
         if (target == null)
         {
-            searchTimer -= Time.deltaTime;
-            if (searchTimer <= 0f)
-            {
-                searchTimer = searchCooldown;
-                target = FindNewTarget();
-            }
-            return;
+            target = FindNewTarget();
+            if (target == null) return;
         }
 
-        // 计算基础前进方向
         Vector3 dir = (target.position - transform.position).normalized;
-
-        // --- ?? 添加自然抖动 ---
-        // Perlin 噪声使得运动略带漂浮感
-        float noiseX = Mathf.PerlinNoise(Time.time * jitterFrequency, GetInstanceID() * 0.1f) - 0.5f;
-        float noiseY = Mathf.PerlinNoise(GetInstanceID() * 0.1f, Time.time * jitterFrequency) - 0.5f;
-        Vector3 jitter = (transform.right * noiseX + transform.up * noiseY) * jitterStrength;
-
-        // 轻微蛇形（绕垂直方向的小摆动）
-        Vector3 side = Vector3.Cross(dir, Vector3.up).normalized;
-        Vector3 snake = side * Mathf.Sin(Time.time * snakeFrequency + GetInstanceID()) * snakeAmplitude;
-
-        // 最终合成移动向量
-        Vector3 move = (dir * speed + jitter + snake);
-        transform.position += move * Time.deltaTime;
-
-        // 平滑朝向目标
-        Quaternion lookRot = Quaternion.LookRotation(dir);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 10f);
+        Vector3 jitter = (Random.insideUnitSphere * jitterStrength);
+        Vector3 snake = Vector3.Cross(dir, Vector3.up) * Mathf.Sin(Time.time * snakeFrequency) * snakeAmplitude;
+        transform.position += (dir * speed + jitter + snake) * Time.deltaTime;
+        transform.rotation = Quaternion.LookRotation(dir);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -75,38 +58,37 @@ public class Antibody : MonoBehaviour
         if (other.TryGetComponent<IDamageable>(out var dmg))
         {
             dmg.TakeDamage(damage);
-            ObjectPool.Instance.ReturnToPool(gameObject);
-
+            ReturnToPool();
         }
     }
 
-    /// <summary>
-    /// 当目标死亡后自动寻找新的敌人
-    /// </summary>
     private Transform FindNewTarget()
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, searchRange);
         Transform nearest = null;
         float minDist = Mathf.Infinity;
-
         foreach (var hit in hits)
         {
-            if (hit.TryGetComponent<IDamageable>(out var dmg))
+            if (!hit.TryGetComponent<IDamageable>(out _)) continue;
+            float dist = Vector3.Distance(transform.position, hit.transform.position);
+            if (dist < minDist)
             {
-                float dist = Vector3.Distance(transform.position, hit.transform.position);
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    nearest = hit.transform;
-                }
+                minDist = dist;
+                nearest = hit.transform;
             }
         }
         return nearest;
     }
 
-    private void OnDrawGizmosSelected()
+    private void ReturnToPool()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, searchRange);
+        if (prefabRef == null)
+        {
+            Debug.LogWarning($"[Antibody] 没有 prefabRef，无法回收，直接销毁。");
+            Destroy(gameObject);
+            return;
+        }
+
+        ObjectPoolManager.Instance.Return(prefabRef, gameObject);
     }
 }
