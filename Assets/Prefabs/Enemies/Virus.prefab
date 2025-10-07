@@ -109,7 +109,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Virus
   speed: 10
   target: {fileID: 0}
-  HP: 10
+  HP: 50
   rb: {fileID: 0}
 --- !u!135 &5709853574035695965
 SphereCollider:
