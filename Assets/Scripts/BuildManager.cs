@@ -22,7 +22,7 @@ public class BuildManager : MonoBehaviour
     private Transform lastHoveredCube;
     private PlayerInputActions.BuildActions buildActions;
 
-    private enum WhatToBuild { Collector = 1, BloodVessel = 2, Wall = 3, Tower = 4 }
+    public enum WhatToBuild { Collector = 1, BloodVessel = 2, Wall = 3, Tower = 4 }
     [SerializeField] private WhatToBuild currentBuild = WhatToBuild.Collector;
 
     // === 新增：引用 Nanobot（场景中应始终存在） ===
