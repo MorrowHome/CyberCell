@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 41
+  controlID: 80
   draggingID: 0
 --- !u!114 &3
 MonoBehaviour:
@@ -262,7 +262,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: SceneView
+  m_Name: GameView
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -273,13 +273,13 @@ MonoBehaviour:
     height: 923
   m_MinSize: {x: 202, y: 226}
   m_MaxSize: {x: 4002, y: 4026}
-  m_ActualView: {fileID: 16}
+  m_ActualView: {fileID: 17}
   m_Panes:
   - {fileID: 16}
   - {fileID: 12}
   - {fileID: 17}
-  m_Selected: 0
-  m_LastSelected: 2
+  m_Selected: 2
+  m_LastSelected: 0
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -363,7 +363,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts
+    - Assets/Prefabs/Cells
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -373,16 +373,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 51
   m_LastFolders:
-  - Assets/Scripts
+  - Assets/Prefabs/Cells
   m_LastFoldersGridSize: 51
   m_LastProjectPath: E:\unity_projects\CyberCell
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: e6bc0000
-    m_LastClickedID: 48358
-    m_ExpandedIDs: 000000008cbc00008ebc000090bc000092bc0000
+    m_SelectedIDs: c4bd0000
+    m_LastClickedID: 48580
+    m_ExpandedIDs: 000000007cbc00007ebc000080bc000082bc000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -411,7 +411,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 7e020000
     m_LastClickedID: 638
-    m_ExpandedIDs: 000000008cbc00008ebc000090bc000092bc0000
+    m_ExpandedIDs: 000000007cbc00007ebc000080bc000082bc0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -437,9 +437,9 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 5cb80000
-    m_LastClickedInstanceID: 47196
-    m_HadKeyboardFocusLastEvent: 0
+    m_SelectedInstanceIDs: 24f9ffff
+    m_LastClickedInstanceID: -1756
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c62300001096000070f40000000000002ef4000098000100
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -490,8 +490,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Inspector\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 2016
-    y: 24
+    x: 2015
+    y: 79
     width: 544
     height: 1267
   m_SerializedDataModeController:
@@ -540,7 +540,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 24
+    y: 79
     width: 352
     height: 897
   m_SerializedDataModeController:
@@ -559,21 +559,21 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: f84687ffbcbcdcff10bddcff66c6dcff6ce3dfffb8eddfff42f8dfffb4d6e6ff3ac0e9ffaaf1f0ffc808f4fff2faffff04fbffff36b9000090b90000aab90000
+      m_ExpandedIDs: e20be7ffee0be7fff80be7ff000ce7ff92fde9ff00f9ffff38f9ffff48f9ffff4af9ffff7abb0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
-        m_Name: 
-        m_OriginalName: 
+        m_Name: AntibodyPool
+        m_OriginalName: AntibodyPool
         m_EditFieldRect:
           serializedVersion: 2
           x: 0
           y: 0
           width: 0
           height: 0
-        m_UserData: 0
+        m_UserData: 48042
         m_IsWaitingForDelay: 0
         m_IsRenaming: 0
-        m_OriginalEventType: 11
+        m_OriginalEventType: 0
         m_IsRenamingFilename: 0
         m_TrimLeadingAndTrailingWhitespace: 0
         m_ClientGUIView: {fileID: 4}
@@ -605,8 +605,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Scene\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 354
-    y: 24
+    x: 353
+    y: 79
     width: 1660
     height: 897
   m_SerializedDataModeController:
@@ -1149,9 +1149,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 0, y: 0, z: 0}
+    m_Target: {x: 500.06018, y: 0.7211876, z: 492.10742}
     speed: 2
-    m_Value: {x: 0, y: 0, z: 0}
+    m_Value: {x: 500.06018, y: 0.7211876, z: 492.10742}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1197,17 +1197,17 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.482
   m_Rotation:
-    m_Target: {x: -0.3920453, y: 0.05131806, z: -0.021852694, w: -0.9182947}
+    m_Target: {x: -0.25587183, y: -0.53100014, z: 0.17217942, w: -0.78933126}
     speed: 2
-    m_Value: {x: -0.3920453, y: 0.05131806, z: -0.021852694, w: -0.9182947}
+    m_Value: {x: -0.25585634, y: -0.530968, z: 0.17216899, w: -0.78928345}
   m_Size:
-    m_Target: 10
+    m_Target: 64.15932
     speed: 2
-    m_Value: 10
+    m_Value: 64.15932
   m_Ortho:
-    m_Target: 1
+    m_Target: 0
     speed: 2
-    m_Value: 1
+    m_Value: 0
   m_CameraSettings:
     m_Speed: 1
     m_SpeedNormalized: 0.5
@@ -1306,7 +1306,7 @@ MonoBehaviour:
     m_HSlider: 0
     m_VSlider: 0
     m_IgnoreScrollWheelUntilClicked: 0
-    m_EnableMouseInput: 0
+    m_EnableMouseInput: 1
     m_EnableSliderZoomHorizontal: 0
     m_EnableSliderZoomVertical: 0
     m_UniformScale: 1
@@ -1360,7 +1360,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 947
+    y: 1002
     width: 2014
     height: 344
   m_SerializedDataModeController:

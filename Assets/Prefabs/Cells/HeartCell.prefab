@@ -121,6 +121,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4916659950938630368}
+  - component: {fileID: 6949133045784943516}
+  - component: {fileID: 2228915594334584955}
   m_Layer: 0
   m_Name: HeartCell
   m_TagString: Untagged
@@ -144,6 +146,40 @@ Transform:
   - {fileID: 766483030251285508}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6949133045784943516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3736499583283722358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1a3ee3d5292de64f8d8e95b449c7272, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeartCell
+  beatSpeed: 2
+  beatScale: 0.1
+  emissionIntensity: 5
+  render: {fileID: 867236007781950966}
+--- !u!114 &2228915594334584955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3736499583283722358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e36351f151b87d4dbd00b6d80487203, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BloodVessel
+  connected: {fileID: 0}
+  disconnected: {fileID: 0}
+  myVisual: {fileID: 0}
+  actionPointCost: 1
+  glucoseConcentration: 10
+  isConnected: 1
 --- !u!1001 &5974812042976009732
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -236,31 +272,13 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 65702495048144492, guid: 75f0c819d763c1c499ff8c14b404db2e, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -2414794130654239793, guid: 75f0c819d763c1c499ff8c14b404db2e, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5541613368603565982}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 75f0c819d763c1c499ff8c14b404db2e, type: 3}
---- !u!1 &906954628479352267 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -2414794130654239793, guid: 75f0c819d763c1c499ff8c14b404db2e, type: 3}
+--- !u!23 &867236007781950966 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6837521312924761074, guid: 75f0c819d763c1c499ff8c14b404db2e, type: 3}
   m_PrefabInstance: {fileID: 5974812042976009732}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5541613368603565982
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 906954628479352267}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1a3ee3d5292de64f8d8e95b449c7272, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HeartCell
-  beatSpeed: 2
-  beatScale: 0.1
-  emissionIntensity: 5
 --- !u!4 &6152043091704609263 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 75f0c819d763c1c499ff8c14b404db2e, type: 3}

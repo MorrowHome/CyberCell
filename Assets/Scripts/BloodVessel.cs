@@ -7,6 +7,7 @@ public class BloodVessel : MonoBehaviour, IActionPointCost
     [SerializeField] private Material disconnected;
     [SerializeField] private GameObject myVisual;
     [SerializeField] public int actionPointCost = 1;
+    [SerializeField] private float glucoseConcentration = 10f;
     public int ActionPointCost => actionPointCost;
 
     private Transform parentCubeGrid;

@@ -9,6 +9,10 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
     [SerializeField] private float defenseRange = 5f;
     [SerializeField] private float antibodyPerSecond = 2f;
     [SerializeField] private GameObject antibodyPrefab;
+    [SerializeField] private BloodVessel bloodVesselForward = null;
+    [SerializeField] private BloodVessel bloodVesselBack = null;
+    [SerializeField] private BloodVessel bloodVesselLeft = null;
+    [SerializeField] private BloodVessel bloodVesselRight = null;
 
     [Header("能量系统")]
     [SerializeField] private float maxHungryTime = 5f;

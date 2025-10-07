@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Renderer))]
 public class HeartCell : MonoBehaviour
 {
     [Header("搏动参数")]
@@ -13,9 +12,11 @@ public class HeartCell : MonoBehaviour
     private Vector3 baseScale;
     private Color baseEmission;
 
+    [SerializeField] private Renderer render;
+
     void Start()
     {
-        rend = GetComponent<Renderer>();
+        rend = render;
         mat = rend.material; // 注意：会实例化一个新材质副本
         baseScale = transform.localScale;
 

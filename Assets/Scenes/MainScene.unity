@@ -4086,7 +4086,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1823396004}
-  - component: {fileID: 1823396003}
   m_Layer: 0
   m_Name: AntibodyPool
   m_TagString: Untagged
@@ -4094,20 +4093,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1823396003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1823396002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f43cd20f4bd15f9478b43b34777024bb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectPool
-  prefab: {fileID: 7634008779303516491, guid: 3ccdea83281070748a916faf68345218, type: 3}
-  initialSize: 20
 --- !u!4 &1823396004
 Transform:
   m_ObjectHideFlags: 0
@@ -4595,6 +4580,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4046806658225488194, guid: 4fb22b35e325dd5458cadfdb306b3546, type: 3}
       propertyPath: m_Shadows.m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5331297868839010589, guid: 4fb22b35e325dd5458cadfdb306b3546, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8510906173011551107, guid: 4fb22b35e325dd5458cadfdb306b3546, type: 3}

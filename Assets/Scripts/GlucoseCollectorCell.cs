@@ -1,86 +1,191 @@
+using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 葡萄糖采集细胞
+/// </summary>
 public class GlucoseCollectorCell : MonoBehaviour, IActionPointCost
 {
-    [Header("References & tags")]
+    [Header("References & Tags")]
     [SerializeField] private Transform parentCubeGrid;
     [SerializeField] private BreathVisual breathVisual;
     [SerializeField] private string glucoseCubeGridTag = "GlucoseCubeGrid";
 
-    [Header("Collection rates")]
-    [SerializeField] private float baseGlucoseCollectedPerSecond = 1.0f; // 固定基础速率，不在运行时修改
-    [SerializeField] public int actionPointCost = 3;
-    [SerializeField] private float glucoseConsumptionPerSecond = 0f; // 目前没用，保留
+    [Header("Collection Rates")]
+    [SerializeField] private float baseGlucoseCollectedPerSecond = 1.0f;
+    [SerializeField] private int actionPointCost = 3;
+    [SerializeField] private float glucoseConsumptionPerSecond = 0f;
 
-    [Header("Glucose concentration thresholds")]
+    [Header("Glucose Concentration Thresholds")]
     [SerializeField] private float minGlucoseConcentration = 0f;
     [SerializeField] private float bestGlucoseConcentration = 500f;
     [SerializeField] private float maxGlucoseConcentration = 100000f;
 
-    
+    [Header("Neighbor Blood Vessels")]
+    [SerializeField] private BloodVessel bloodVesselForward = null;
+    [SerializeField] private BloodVessel bloodVesselBack = null;
+    [SerializeField] private BloodVessel bloodVesselLeft = null;
+    [SerializeField] private BloodVessel bloodVesselRight = null;
 
-    private bool isConnected = false;   // 是否连通到心脏
-    public int ActionPointCost => actionPointCost;
-
+    private List<BloodVessel> neighborBloodVessels = new List<BloodVessel>();
+    private bool isConnected = false;
     private float vitalityFactor = 1f;
     private GlucoseCubeGrid cachedGlucoseGrid;
 
-    void Start()
+    private Vector3[] directions = { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
+    private Dictionary<Vector3, BloodVessel> neighborCache = new Dictionary<Vector3, BloodVessel>();
+
+    public int ActionPointCost => actionPointCost;
+
+    private void Awake()
     {
-        parentCubeGrid = transform.parent;
-        if (breathVisual == null) breathVisual = GetComponentInChildren<BreathVisual>();
+        if (parentCubeGrid == null)
+            parentCubeGrid = transform.parent;
 
-        if (GlucoseCollectorManager.Instance != null)
-            GlucoseCollectorManager.Instance.RegisterCollector(this);
+        if (breathVisual == null)
+            breathVisual = GetComponentInChildren<BreathVisual>();
 
+        neighborBloodVessels.AddRange(new[] { bloodVesselForward, bloodVesselBack, bloodVesselLeft, bloodVesselRight });
+    }
+
+    private void Start()
+    {
+        GlucoseCollectorManager.Instance?.RegisterCollector(this);
         RefreshConnection();
     }
 
-    private void OnEnable()
+    private void Update()
     {
-        if (GlucoseCollectorManager.Instance != null)
-            GlucoseCollectorManager.Instance.RegisterCollector(this);
-    }
-
-    private void OnDisable()
-    {
-        if (GlucoseCollectorManager.Instance != null)
-            GlucoseCollectorManager.Instance.UnregisterCollector(this);
-    }
-
-    private void OnDestroy()
-    {
-        if (GlucoseCollectorManager.Instance != null)
-            GlucoseCollectorManager.Instance.UnregisterCollector(this);
-    }
-
-    /// <summary>
-    /// 由管理器或血管刷新时调用，更新是否连通
-    /// </summary>
-    public void RefreshConnection()
-    {
-        isConnected = CheckConnectionToBloodVessel();
-        if (breathVisual != null) breathVisual.isActive = isConnected;
-
-        // 如果断开连接，清除缓存的 grid 引用
-        if (!isConnected) cachedGlucoseGrid = null;
-    }
-
-    void Update()
-    {
-        // 计算活力因子（只读，不修改基础速率）
         CalculateVitalityFactor();
 
-        // 只有连通且父格属于 glucose cube grid 时才持续收集
-        if (!isConnected || parentCubeGrid == null || parentCubeGrid.tag != glucoseCubeGridTag || GameManager.Instance.CurrentTurn != GameManager.TurnType.DefenseTime) return;
+        if (!isConnected || parentCubeGrid == null || parentCubeGrid.tag != glucoseCubeGridTag || GameManager.Instance.CurrentTurn != GameManager.TurnType.DefenseTime)
+            return;
 
-        // 缓存 GlucoseCubeGrid，父格可能被替换（比如资源耗尽时）
+        CacheGlucoseGrid();
+
+        if (cachedGlucoseGrid == null)
+            return;
+
+        CollectGlucose();
+    }
+
+    #region Connection & Neighbor Handling
+
+    public void RefreshConnection()
+    {
+        bool prevConnection = isConnected;
+        isConnected = CheckConnectionToBloodVessel();
+
+        if (isConnected)
+        {
+            RefreshNeighborBloodVessels();
+        }
+        else
+        {
+            neighborBloodVessels.Clear();
+            neighborCache.Clear();
+            cachedGlucoseGrid = null;
+        }
+
+        if (breathVisual != null)
+            breathVisual.isActive = isConnected;
+
+        // 仅在连接状态变化时做额外操作（如视觉效果）
+        if (prevConnection != isConnected)
+        {
+            // 可以在这里加额外逻辑，比如断开连接播放动画
+        }
+    }
+
+    private bool CheckConnectionToBloodVessel()
+    {
+        if (parentCubeGrid == null || MapGenerator.Instance == null)
+            return false;
+
+        if (!MapGenerator.Instance.Transform_Vector3_Dictionary.TryGetValue(parentCubeGrid, out Vector3 myPos))
+            return false;
+
+        foreach (var dir in directions)
+        {
+            Vector3 neighborPos = myPos + dir;
+
+            if (neighborCache.TryGetValue(neighborPos, out var cachedVessel) && cachedVessel != null && cachedVessel.isConnected)
+                return true;
+
+            if (MapGenerator.Instance.Vector3_Transform_Dictionary.TryGetValue(neighborPos, out Transform neighborGrid))
+            {
+                BloodVessel vessel = neighborGrid.GetComponentInChildren<BloodVessel>();
+                neighborCache[neighborPos] = vessel;
+
+                if (vessel != null && vessel.isConnected)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void RefreshNeighborBloodVessels()
+    {
+        if (parentCubeGrid == null || MapGenerator.Instance == null)
+            return;
+
+        if (!MapGenerator.Instance.Transform_Vector3_Dictionary.TryGetValue(parentCubeGrid, out Vector3 myPos))
+            return;
+
+        neighborBloodVessels.Clear();
+
+        foreach (var dir in directions)
+        {
+            Vector3 neighborPos = myPos + dir;
+
+            BloodVessel vessel = null;
+            if (neighborCache.TryGetValue(neighborPos, out vessel) && vessel != null)
+            {
+                neighborBloodVessels.Add(vessel);
+                continue;
+            }
+
+            if (MapGenerator.Instance.Vector3_Transform_Dictionary.TryGetValue(neighborPos, out Transform neighborGrid))
+            {
+                vessel = neighborGrid.GetComponentInChildren<BloodVessel>();
+                if (vessel != null)
+                {
+                    neighborBloodVessels.Add(vessel);
+                    neighborCache[neighborPos] = vessel;
+                }
+            }
+        }
+
+        // 更新方向引用（方便编辑器显示）
+        bloodVesselForward = GetVesselInDirection(Vector3.forward, myPos);
+        bloodVesselBack = GetVesselInDirection(Vector3.back, myPos);
+        bloodVesselLeft = GetVesselInDirection(Vector3.left, myPos);
+        bloodVesselRight = GetVesselInDirection(Vector3.right, myPos);
+    }
+
+    private BloodVessel GetVesselInDirection(Vector3 dir, Vector3 myPos)
+    {
+        Vector3 neighborPos = myPos + dir;
+        neighborCache.TryGetValue(neighborPos, out var vessel);
+        return vessel;
+    }
+
+    #endregion
+
+    #region Glucose Collection
+
+    private void CacheGlucoseGrid()
+    {
         if (cachedGlucoseGrid == null || cachedGlucoseGrid.transform != parentCubeGrid)
+        {
             cachedGlucoseGrid = parentCubeGrid.GetComponent<GlucoseCubeGrid>();
+        }
+    }
 
-        if (cachedGlucoseGrid == null) return;
-
-        // 计算本帧应采集量（不会修改基础速率）
+    private void CollectGlucose()
+    {
         float collected = baseGlucoseCollectedPerSecond * vitalityFactor * Time.deltaTime;
         cachedGlucoseGrid.AmountDecrease(collected);
 
@@ -88,49 +193,11 @@ public class GlucoseCollectorCell : MonoBehaviour, IActionPointCost
             GameManager.Instance.glucoseAmount += collected;
     }
 
-    /// <summary>
-    /// 检查周围是否有血管，并且该血管连通心脏
-    /// </summary>
-    private bool CheckConnectionToBloodVessel()
-    {
-        if (parentCubeGrid == null) return false;
-        if (MapGenerator.Instance == null) return false;
-
-        if (!MapGenerator.Instance.Transform_Vector3_Dictionary.TryGetValue(parentCubeGrid, out Vector3 myPos))
-            return false;
-
-        Vector3[] directions = { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
-
-        foreach (var dir in directions)
-        {
-            Vector3 neighborPos = myPos + dir;
-
-            if (MapGenerator.Instance.Vector3_Transform_Dictionary.TryGetValue(neighborPos, out Transform neighborGrid))
-            {
-                CubeGrid cubeGrid = neighborGrid.GetComponent<CubeGrid>();
-                if (cubeGrid == null || cubeGrid.whatIsOnMe == null) continue;
-
-                BloodVessel vessel = cubeGrid.whatIsOnMe.GetComponent<BloodVessel>();
-                if (vessel != null && vessel.isConnected)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     private void CalculateVitalityFactor()
     {
-        float concentration = GameManager.Instance != null ? GameManager.Instance.GlucoseConcentration : 0f;
+        float concentration = GameManager.Instance?.GlucoseConcentration ?? 0f;
 
-        // 保持你原来的等级逻辑，只是改了函数名称并确保不会改基础速率
-        if (concentration <= minGlucoseConcentration)
-        {
-            vitalityFactor = 1f;
-        }
-        else if (concentration >= maxGlucoseConcentration)
+        if (concentration <= minGlucoseConcentration || concentration >= maxGlucoseConcentration)
         {
             vitalityFactor = 1f;
         }
@@ -143,4 +210,25 @@ public class GlucoseCollectorCell : MonoBehaviour, IActionPointCost
             vitalityFactor = 5f;
         }
     }
+
+    #endregion
+
+    #region OnEnable/OnDisable/OnDestroy
+
+    private void OnEnable()
+    {
+        GlucoseCollectorManager.Instance?.RegisterCollector(this);
+    }
+
+    private void OnDisable()
+    {
+        GlucoseCollectorManager.Instance?.UnregisterCollector(this);
+    }
+
+    private void OnDestroy()
+    {
+        GlucoseCollectorManager.Instance?.UnregisterCollector(this);
+    }
+
+    #endregion
 }
