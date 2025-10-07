@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     public enum TurnType { BuildTime, DefenseTime }
     public TurnType CurrentTurn { get; private set; } = TurnType.BuildTime;
 
-    public event Action<TurnType> OnTurnChanged; // ÓÃÊÂ¼şÇı¶¯ UI
+    public event Action<TurnType> OnTurnChanged; // ç”¨äº‹ä»¶é©±åŠ¨ UI
     public event Action<int> OnActionPointsChanged;
 
     private void Update()
@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour
         Application.targetFrameRate = 60;
     }
 
-    // === ĞĞ¶¯Á¦¹ÜÀí ===
+    // === è¡ŒåŠ¨åŠ›ç®¡ç† ===
     public bool HasEnoughPoints(int cost) => actionPoints >= cost;
 
     public void SpendPoints(int cost)
@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
         OnActionPointsChanged?.Invoke(actionPoints);
     }
 
-    // === »ØºÏÇĞ»» ===
+    // === å›åˆåˆ‡æ¢ ===
     public void SwitchTurn()
     {
         waveCounts++;

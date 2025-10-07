@@ -4,91 +4,133 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("Top Bars")]
+    [Header("🔹 Top Bars")]
     public Slider apSlider;
     public TMP_Text apText;
     public Slider glucoseSlider;
     public TMP_Text glucoseText;
-    public TMP_Text defenseText;
+    public TMP_Text phaseText;
 
-    [Header("Panels")]
+    [Header("🔹 Panels")]
     public GameObject buildPanel;
     public GameObject defensePanel;
 
-    [Header("Buttons")]
+    [Header("🔹 Buttons")]
     public Button nextTurnBtn;
-    public Button btnBuildVessel;
-    public Button btnBuildDefenseCell;
-    public Button btnBuildProdCell;
-    public Button btnEmergency;
+    public Button btnBuildCollector;
+    public Button btnBuildBloodVessel;
+    public Button btnBuildWall;
+    public Button btnBuildTower;
 
     private void Start()
     {
-        // 初始化 UI
+        // === 检查组件 ===
+        if (GameManager.Instance == null)
+        {
+            Debug.LogError("[UIManager] GameManager not found in scene!");
+            return;
+        }
+
+        if (BuildManager.Instance == null)
+        {
+            Debug.LogError("[UIManager] BuildManager not found in scene!");
+            return;
+        }
+
+        // === 初始化 UI ===
         UpdateActionPoints(GameManager.Instance.ActionPoints);
-
-
-        // 注册事件监听
-        GameManager.Instance.OnTurnChanged += OnTurnChanged;
-        GameManager.Instance.OnActionPointsChanged += UpdateActionPoints;
-
-        // 按钮绑定
-        nextTurnBtn.onClick.AddListener(OnNextTurn);
-        btnBuildVessel.onClick.AddListener(() => SpendAP(2));
-        btnBuildDefenseCell.onClick.AddListener(() => SpendAP(2));
-        btnBuildProdCell.onClick.AddListener(() => SpendAP(1));
-        btnEmergency.onClick.AddListener(OnEmergency);
-
+        UpdateGlucose(GameManager.Instance.GlucoseConcentration);
         OnTurnChanged(GameManager.Instance.CurrentTurn);
+
+        // === 注册事件 ===
+        GameManager.Instance.OnActionPointsChanged += UpdateActionPoints;
+        GameManager.Instance.OnTurnChanged += OnTurnChanged;
+
+        // === 按钮事件 ===
+        nextTurnBtn.onClick.AddListener(OnNextTurn);
+        btnBuildCollector.onClick.AddListener(() => SetBuildType(1));
+        btnBuildBloodVessel.onClick.AddListener(() => SetBuildType(2));
+        btnBuildWall.onClick.AddListener(() => SetBuildType(3));
+        btnBuildTower.onClick.AddListener(() => SetBuildType(4));
     }
 
     private void Update()
     {
-        UpdateGlucose(GameManager.Instance.GlucoseConcentration);
+        // 实时更新 Glucose 显示
+        if (GameManager.Instance != null)
+            UpdateGlucose(GameManager.Instance.GlucoseConcentration);
     }
 
     private void OnDestroy()
     {
-        GameManager.Instance.OnTurnChanged -= OnTurnChanged;
-        GameManager.Instance.OnActionPointsChanged -= UpdateActionPoints;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnActionPointsChanged -= UpdateActionPoints;
+            GameManager.Instance.OnTurnChanged -= OnTurnChanged;
+        }
     }
 
-    private void OnNextTurn() => GameManager.Instance.SwitchTurn();
+    // === 切换回合按钮 ===
+    private void OnNextTurn()
+    {
+        GameManager.Instance.SwitchTurn();
+    }
 
+    // === 更新当前阶段（Build / Defense） ===
     private void OnTurnChanged(GameManager.TurnType turn)
     {
         bool isBuild = turn == GameManager.TurnType.BuildTime;
 
-        buildPanel.SetActive(isBuild);
-        defensePanel.SetActive(!isBuild);
-        defenseText.text = isBuild ? "Build Phase" : "Defense Phase";
+        if (buildPanel != null) buildPanel.SetActive(isBuild);
+        if (defensePanel != null) defensePanel.SetActive(!isBuild);
+        if (phaseText != null)
+            phaseText.text = isBuild ? "Build Phase" : "Defense Phase";
 
-        nextTurnBtn.GetComponentInChildren<TMP_Text>().text =
-            isBuild ? "NEXT TURN → Defense" : "NEXT TURN → Build";
+        if (nextTurnBtn != null)
+        {
+            var label = nextTurnBtn.GetComponentInChildren<TMP_Text>();
+            if (label != null)
+                label.text = isBuild ? "NEXT TURN → Defense" : "NEXT TURN → Build";
+        }
     }
 
-    private void SpendAP(int cost)
-    {
-        if (GameManager.Instance.HasEnoughPoints(cost))
-            GameManager.Instance.SpendPoints(cost);
-    }
-
+    // === 更新 AP 显示 ===
     private void UpdateActionPoints(int ap)
     {
-        apSlider.value = ap;
-        apText.text = $"{ap} / {GameManager.Instance.MaxActionPoints}";
+        if (apSlider != null)
+            apSlider.value = ap;
+        if (apText != null)
+            apText.text = $"{ap} / {GameManager.Instance.MaxActionPoints}";
     }
 
+    // === 更新 Glucose 显示 ===
     private void UpdateGlucose(float amount)
     {
-        glucoseSlider.value = amount;
-        glucoseText.text = $"{Mathf.RoundToInt(amount)}%";
+        if (glucoseSlider != null)
+            glucoseSlider.value = amount;
+        if (glucoseText != null)
+            glucoseText.text = $"{Mathf.RoundToInt(amount)}%";
     }
 
-    private void OnEmergency()
+    // === 建造按钮功能（连接 BuildManager） ===
+    private void SetBuildType(int id)
     {
-        GameManager.Instance.SpendPoints(GameManager.Instance.ActionPoints);
-        GameManager.Instance.glucoseAmount = Mathf.Min(1f, GameManager.Instance.glucoseAmount + 0.2f);
-        UpdateGlucose(GameManager.Instance.glucoseAmount);
+        if (BuildManager.Instance == null) return;
+
+        string typeName = id switch
+        {
+            1 => "Collector",
+            2 => "BloodVessel",
+            3 => "Wall",
+            4 => "Tower",
+            _ => null
+        };
+
+        if (typeName != null)
+        {
+            BuildManager.Instance.SendMessage("SetCurrentBuild",
+                System.Enum.Parse(typeof(BuildManager.WhatToBuild), typeName));
+            Debug.Log($"[UIManager] Selected build type: {typeName}");
+        }
     }
 }
