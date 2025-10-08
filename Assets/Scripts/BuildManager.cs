@@ -9,7 +9,7 @@ public class BuildManager : MonoBehaviour
 
     [SerializeField] private Camera cam;
 
-    [Header("½¨Ôì Prefabs")]
+    [Header("å»ºé€  Prefabs")]
     [SerializeField] private GameObject glucoseCollectorCellPrefab; // 1
     [SerializeField] private GameObject bloodVesselPrefab;          // 2
     [SerializeField] private GameObject wallPrefab;                 // 3
@@ -22,14 +22,16 @@ public class BuildManager : MonoBehaviour
     private Transform lastHoveredCube;
     private PlayerInputActions.BuildActions buildActions;
 
+
+    public Transform LastHoveredCube => lastHoveredCube;
     public enum WhatToBuild { Collector = 1, BloodVessel = 2, Wall = 3, Tower = 4 }
     [SerializeField] private WhatToBuild currentBuild = WhatToBuild.Collector;
 
-    // === ĞÂÔö£ºÒıÓÃ Nanobot£¨³¡¾°ÖĞÓ¦Ê¼ÖÕ´æÔÚ£© ===
-    [Header("½¨Ôì»úÆ÷ÈË")]
+    // === æ–°å¢ï¼šå¼•ç”¨ Nanobotï¼ˆåœºæ™¯ä¸­åº”å§‹ç»ˆå­˜åœ¨ï¼‰ ===
+    [Header("å»ºé€ æœºå™¨äºº")]
     [SerializeField] private Nanobot nanobot;
 
-    // === ĞÂÔö£ºÉ¾³ıÄ£Ê½ ===
+    // === æ–°å¢ï¼šåˆ é™¤æ¨¡å¼ ===
     private enum BuildMode { Build, Delete }
     private BuildMode currentMode = BuildMode.Build;
 
@@ -54,9 +56,9 @@ public class BuildManager : MonoBehaviour
         buildActions.Select3.performed += ctx => SetCurrentBuild(WhatToBuild.Wall);
         buildActions.Select4.performed += ctx => SetCurrentBuild(WhatToBuild.Tower);
 
-        // ĞÂÔö°´¼ü°ó¶¨
-        buildActions.BuildMode.performed += ctx => SetMode(BuildMode.Build);   // B ¼üÇĞ½¨ÔìÄ£Ê½
-        buildActions.DeleteMode.performed += ctx => SetMode(BuildMode.Delete); // X ¼üÇĞÉ¾³ıÄ£Ê½
+        // æ–°å¢æŒ‰é”®ç»‘å®š
+        buildActions.BuildMode.performed += ctx => SetMode(BuildMode.Build);   // B é”®åˆ‡å»ºé€ æ¨¡å¼
+        buildActions.DeleteMode.performed += ctx => SetMode(BuildMode.Delete); // X é”®åˆ‡åˆ é™¤æ¨¡å¼
     }
 
     private void OnDisable()
@@ -68,7 +70,7 @@ public class BuildManager : MonoBehaviour
 
     private void Update()
     {
-        // Èç¹ûÊó±êÔÚ UI ÉÏ£¬¾Í²»×ö¸ßÁÁÂß¼­
+        // å¦‚æœé¼ æ ‡åœ¨ UI ä¸Šï¼Œå°±ä¸åšé«˜äº®é€»è¾‘
         if (EventSystem.current.IsPointerOverGameObject())
         {
             if (lastHoveredCube != null)
@@ -106,7 +108,7 @@ public class BuildManager : MonoBehaviour
     {
 
 
-        // Èç¹ûÊó±êÔÚ UI ÉÏ£¬¾Í²»Ö´ĞĞ½¨Ôì/É¾³ı
+        // å¦‚æœé¼ æ ‡åœ¨ UI ä¸Šï¼Œå°±ä¸æ‰§è¡Œå»ºé€ /åˆ é™¤
         if (EventSystem.current.IsPointerOverGameObject()) return;
 
         if (lastHoveredCube == null) return;
@@ -129,15 +131,12 @@ public class BuildManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("Nanobot Î´°ó¶¨£¬Ö±½Ó½¨Ôì¡£");
+                Debug.LogWarning("Nanobot æœªç»‘å®šï¼Œç›´æ¥å»ºé€ ã€‚");
                 GameObject ins = Instantiate(prefab, spawnPos, Quaternion.identity, cubeGrid.transform);
                 cubeGrid.whatIsOnMe = ins.transform;
                 cubeGrid.isOccupied = true;
 
                 BloodVessel vessel = ins.GetComponent<BloodVessel>();
-                if (vessel != null)
-                    vessel.Init();
-
                 BloodVesselManager.bloodVesselManager.RefreshAllConnections();
                 OnPlaceSomething?.Invoke(this, EventArgs.Empty);
             }
@@ -193,14 +192,14 @@ public class BuildManager : MonoBehaviour
     private void SetCurrentBuild(WhatToBuild newBuild)
     {
         currentBuild = newBuild;
-        currentMode = BuildMode.Build; // ×Ô¶¯ÇĞ»Ø½¨ÔìÄ£Ê½
-        Debug.Log("µ±Ç°Ñ¡Ôñ½¨Ôì: " + currentBuild);
+        currentMode = BuildMode.Build; // è‡ªåŠ¨åˆ‡å›å»ºé€ æ¨¡å¼
+        Debug.Log("å½“å‰é€‰æ‹©å»ºé€ : " + currentBuild);
     }
 
     private void SetMode(BuildMode mode)
     {
         currentMode = mode;
-        Debug.Log("µ±Ç°Ä£Ê½: " + currentMode);
+        Debug.Log("å½“å‰æ¨¡å¼: " + currentMode);
     }
 
     private GameObject GetPrefabForBuild(WhatToBuild buildType)

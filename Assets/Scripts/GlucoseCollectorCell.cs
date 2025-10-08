@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ÆÏÌÑÌÇ²É¼¯Ï¸°û
+/// è‘¡è„ç³–é‡‡é›†ç»†èƒ
 /// </summary>
 public class GlucoseCollectorCell : MonoBehaviour, IActionPointCost
 {
@@ -91,10 +91,10 @@ public class GlucoseCollectorCell : MonoBehaviour, IActionPointCost
         if (breathVisual != null)
             breathVisual.isActive = isConnected;
 
-        // ½öÔÚÁ¬½Ó×´Ì¬±ä»¯Ê±×ö¶îÍâ²Ù×÷£¨ÈçÊÓ¾õĞ§¹û£©
+        // ä»…åœ¨è¿æ¥çŠ¶æ€å˜åŒ–æ—¶åšé¢å¤–æ“ä½œï¼ˆå¦‚è§†è§‰æ•ˆæœï¼‰
         if (prevConnection != isConnected)
         {
-            // ¿ÉÒÔÔÚÕâÀï¼Ó¶îÍâÂß¼­£¬±ÈÈç¶Ï¿ªÁ¬½Ó²¥·Å¶¯»­
+            // å¯ä»¥åœ¨è¿™é‡ŒåŠ é¢å¤–é€»è¾‘ï¼Œæ¯”å¦‚æ–­å¼€è¿æ¥æ’­æ”¾åŠ¨ç”»
         }
     }
 
@@ -158,7 +158,7 @@ public class GlucoseCollectorCell : MonoBehaviour, IActionPointCost
             }
         }
 
-        // ¸üĞÂ·½ÏòÒıÓÃ£¨·½±ã±à¼­Æ÷ÏÔÊ¾£©
+        // æ›´æ–°æ–¹å‘å¼•ç”¨ï¼ˆæ–¹ä¾¿ç¼–è¾‘å™¨æ˜¾ç¤ºï¼‰
         bloodVesselForward = GetVesselInDirection(Vector3.forward, myPos);
         bloodVesselBack = GetVesselInDirection(Vector3.back, myPos);
         bloodVesselLeft = GetVesselInDirection(Vector3.left, myPos);
@@ -186,12 +186,26 @@ public class GlucoseCollectorCell : MonoBehaviour, IActionPointCost
 
     private void CollectGlucose()
     {
-        float collected = baseGlucoseCollectedPerSecond * vitalityFactor * Time.deltaTime;
-        cachedGlucoseGrid.AmountDecrease(collected);
+        if (neighborBloodVessels == null || neighborBloodVessels.Count == 0)
+            return;
 
-        if (GameManager.Instance != null)
-            GameManager.Instance.glucoseAmount += collected;
+        // æ¯ç§’é‡‡é›†æ€»é‡
+        float glucoseCollected = baseGlucoseCollectedPerSecond * vitalityFactor * Time.deltaTime;
+
+        // å°†é‡‡é›†çš„è‘¡è„ç³–å¹³å‡åˆ†é…åˆ°é‚»è¿‘è¡€ç®¡
+        float perVesselAmount = glucoseCollected / neighborBloodVessels.Count;
+
+        foreach (var vessel in neighborBloodVessels)
+        {
+            if (vessel == null) continue;
+
+            // è¡€ç®¡å¢åŠ è‘¡è„ç³–æµ“åº¦
+            float newAmount = vessel.GlucoseAmount + perVesselAmount;
+            vessel.SetGlucoseAmount(newAmount);
+        }
     }
+
+
 
     private void CalculateVitalityFactor()
     {

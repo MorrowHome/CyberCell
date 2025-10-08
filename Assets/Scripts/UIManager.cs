@@ -1,9 +1,12 @@
-using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    public static UIManager Instance;
+
     [Header("🔹 Top Bars")]
     public Slider apSlider;
     public TMP_Text apText;
@@ -14,6 +17,7 @@ public class UIManager : MonoBehaviour
     [Header("🔹 Panels")]
     public GameObject buildPanel;
     public GameObject defensePanel;
+    public GameObject gameOverPanel;
 
     [Header("🔹 Buttons")]
     public Button nextTurnBtn;
@@ -22,9 +26,26 @@ public class UIManager : MonoBehaviour
     public Button btnBuildWall;
     public Button btnBuildTower;
 
+    [Header("🔹 Hover Info")]
+    public GameObject hoverPanel;           // 悬浮信息 Panel
+    public TMP_Text hoverTitleText;
+    public TMP_Text hoverContentText;
+
+
+    [Header("Offset")]
+    public Vector3 hoverOffset = new Vector3(15f, -15f, 0f);
+
+    public Image HP;
+    public TextMeshProUGUI HPTMP;
+
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     private void Start()
     {
-        // === 检查组件 ===
         if (GameManager.Instance == null)
         {
             Debug.LogError("[UIManager] GameManager not found in scene!");
@@ -37,28 +58,32 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        // === 初始化 UI ===
         UpdateActionPoints(GameManager.Instance.ActionPoints);
         UpdateGlucose(GameManager.Instance.GlucoseConcentration);
         OnTurnChanged(GameManager.Instance.CurrentTurn);
 
-        // === 注册事件 ===
         GameManager.Instance.OnActionPointsChanged += UpdateActionPoints;
         GameManager.Instance.OnTurnChanged += OnTurnChanged;
 
-        // === 按钮事件 ===
         nextTurnBtn.onClick.AddListener(OnNextTurn);
         btnBuildCollector.onClick.AddListener(() => SetBuildType(1));
         btnBuildBloodVessel.onClick.AddListener(() => SetBuildType(2));
         btnBuildWall.onClick.AddListener(() => SetBuildType(3));
         btnBuildTower.onClick.AddListener(() => SetBuildType(4));
+
+        if (hoverPanel != null)
+            hoverPanel.SetActive(false);
     }
 
     private void Update()
     {
-        // 实时更新 Glucose 显示
         if (GameManager.Instance != null)
             UpdateGlucose(GameManager.Instance.GlucoseConcentration);
+
+        UpdateHoverInfo();
+
+        HP.fillAmount = GameManager.Instance.HP / 10f;
+        HPTMP.text = "HP: " + Mathf.RoundToInt(GameManager.Instance.HP).ToString();
     }
 
     private void OnDestroy()
@@ -70,13 +95,55 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // === 切换回合按钮 ===
-    private void OnNextTurn()
+    // === 悬浮检测逻辑 ===
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private LayerMask bloodVesselLayer;
+
+    private void UpdateHoverInfo()
     {
-        GameManager.Instance.SwitchTurn();
+        if (hoverPanel == null || BuildManager.Instance == null) return;
+
+        Transform hoveredCube = BuildManager.Instance.LastHoveredCube;
+        if (hoveredCube == null)
+        {
+            HideHoverInfo();
+            return;
+        }
+
+        // 检查 Cube 上有没有 BloodVessel
+        BloodVessel vessel = hoveredCube.GetComponentInChildren<BloodVessel>();
+        if (vessel != null)
+        {
+            Vector3 mousePos = UnityEngine.InputSystem.Mouse.current.position.ReadValue();
+            ShowHoverInfo(vessel, mousePos);
+        }
+        else
+        {
+            HideHoverInfo();
+        }
     }
 
-    // === 更新当前阶段（Build / Defense） ===
+    private void ShowHoverInfo(BloodVessel vessel, Vector3 mousePos)
+    {
+        if (hoverPanel == null) return;
+
+        hoverPanel.SetActive(true);
+        hoverTitleText.text = "BloodVessel";
+        hoverContentText.text = $"Glucose: {vessel.GlucoseAmount:F2}\n" +
+                                $"Connect: {(vessel.isConnected ? "True" : "False")}";
+
+        // 跟随鼠标
+        hoverPanel.transform.position = mousePos + hoverOffset;
+    }
+
+    private void HideHoverInfo()
+    {
+        if (hoverPanel != null)
+            hoverPanel.SetActive(false);
+    }
+
+    // === 其他原有方法保持不变 ===
+    private void OnNextTurn() => GameManager.Instance.SwitchTurn();
     private void OnTurnChanged(GameManager.TurnType turn)
     {
         bool isBuild = turn == GameManager.TurnType.BuildTime;
@@ -94,7 +161,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // === 更新 AP 显示 ===
     private void UpdateActionPoints(int ap)
     {
         if (apSlider != null)
@@ -103,7 +169,6 @@ public class UIManager : MonoBehaviour
             apText.text = $"{ap} / {GameManager.Instance.MaxActionPoints}";
     }
 
-    // === 更新 Glucose 显示 ===
     private void UpdateGlucose(float amount)
     {
         if (glucoseSlider != null)
@@ -112,7 +177,6 @@ public class UIManager : MonoBehaviour
             glucoseText.text = $"{Mathf.RoundToInt(amount)}%";
     }
 
-    // === 建造按钮功能（连接 BuildManager） ===
     private void SetBuildType(int id)
     {
         if (BuildManager.Instance == null) return;
@@ -130,7 +194,6 @@ public class UIManager : MonoBehaviour
         {
             BuildManager.Instance.SendMessage("SetCurrentBuild",
                 System.Enum.Parse(typeof(BuildManager.WhatToBuild), typeName));
-            Debug.Log($"[UIManager] Selected build type: {typeName}");
         }
     }
 }

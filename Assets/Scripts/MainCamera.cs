@@ -1,27 +1,28 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Ê¹ÓÃĞÂÊäÈëÏµÍ³µÄÖ÷ÉãÏñ»ú¿ØÖÆ£º
-/// - ¹Ì¶¨¸ß¶È & ¹Ì¶¨¸©Ñö½Ç
-/// - Êó±êÖĞ¼üÍÏ¶¯Æ½ÒÆ
-/// - Êó±êÓÒ¼ü×óÓÒÍÏ¶¯Ğı×ª
-/// - Êó±ê¹öÂÖËõ·Å
+/// ä½¿ç”¨æ–°è¾“å…¥ç³»ç»Ÿçš„ä¸»æ‘„åƒæœºæ§åˆ¶ï¼š
+/// - å›ºå®šé«˜åº¦ & å›ºå®šä¿¯ä»°è§’
+/// - é¼ æ ‡ä¸­é”®æ‹–åŠ¨å¹³ç§»
+/// - é¼ æ ‡å³é”®å·¦å³æ‹–åŠ¨æ—‹è½¬
+/// - é¼ æ ‡æ»šè½®ç¼©æ”¾
 /// </summary>
 [RequireComponent(typeof(Camera))]
 public class FixedPitchCamera_NewInput : MonoBehaviour
 {
-    [Header("¹Ì¶¨ÉèÖÃ")]
-    public float fixedPitch = 45f; // ¹Ì¶¨¸©Ñö½Ç
-    public float minHeight = 5f;   // ×îĞ¡¸ß¶È
-    public float maxHeight = 50f;  // ×î´ó¸ß¶È
+    [Header("å›ºå®šè®¾ç½®")]
+    public float fixedPitch = 45f; // å›ºå®šä¿¯ä»°è§’
+    public float minHeight = 5f;   // æœ€å°é«˜åº¦
+    public float maxHeight = 50f;  // æœ€å¤§é«˜åº¦
 
-    [Header("¿ØÖÆËÙ¶È")]
+    [Header("æ§åˆ¶é€Ÿåº¦")]
     public float panSpeed = 10f;
     public float rotateSpeed = 120f;
-    public float zoomSpeed = 5f;   // ¹öÂÖËõ·ÅËÙ¶È
+    public float zoomSpeed = 5f;   // æ»šè½®ç¼©æ”¾é€Ÿåº¦
 
-    [Header("Æ½»¬")]
+    [Header("å¹³æ»‘")]
     public bool smooth = true;
     public float smoothSpeed = 12f;
 
@@ -30,7 +31,7 @@ public class FixedPitchCamera_NewInput : MonoBehaviour
     private Vector3 targetPosition;
     private Quaternion targetRotation;
 
-    // ĞÂÊäÈëÏµÍ³
+    // æ–°è¾“å…¥ç³»ç»Ÿ
     private PlayerInputActions playerInput;
     private InputAction lookAction;
     private InputAction middleButtonAction;
@@ -41,11 +42,11 @@ public class FixedPitchCamera_NewInput : MonoBehaviour
     {
         playerInput = new PlayerInputActions();
 
-        // ¶¨ÒåÊäÈë
-        lookAction = playerInput.Camera.Look;                // Êó±êÒÆ¶¯ (Vector2)
-        middleButtonAction = playerInput.Camera.MiddleClick; // Êó±êÖĞ¼ü
-        rightButtonAction = playerInput.Camera.RightClick;   // Êó±êÓÒ¼ü
-        scrollAction = playerInput.Camera.Scroll;            // Êó±ê¹öÂÖ (Vector2.y)
+        // å®šä¹‰è¾“å…¥
+        lookAction = playerInput.Camera.Look;                // é¼ æ ‡ç§»åŠ¨ (Vector2)
+        middleButtonAction = playerInput.Camera.MiddleClick; // é¼ æ ‡ä¸­é”®
+        rightButtonAction = playerInput.Camera.RightClick;   // é¼ æ ‡å³é”®
+        scrollAction = playerInput.Camera.Scroll;            // é¼ æ ‡æ»šè½® (Vector2.y)
     }
 
     void OnEnable() => playerInput.Enable();
@@ -63,6 +64,9 @@ public class FixedPitchCamera_NewInput : MonoBehaviour
 
     void LateUpdate()
     {
+        // å¦‚æœé¼ æ ‡åœ¨ UI ä¸Šï¼Œå°±ä¸æ‰§è¡Œå»ºé€ /åˆ é™¤
+        if (EventSystem.current.IsPointerOverGameObject()) return;
+
         Vector2 look = lookAction.ReadValue<Vector2>();
         float scroll = scrollAction.ReadValue<Vector2>().y;
 
@@ -79,7 +83,7 @@ public class FixedPitchCamera_NewInput : MonoBehaviour
     {
         if (rightButtonAction.IsPressed())
         {
-            yaw += look.x * rotateSpeed * Time.deltaTime * 0.01f; // ËõĞ¡ÁéÃô¶È
+            yaw += look.x * rotateSpeed * Time.deltaTime * 0.01f; // ç¼©å°çµæ•åº¦
         }
     }
 
@@ -102,7 +106,7 @@ public class FixedPitchCamera_NewInput : MonoBehaviour
     {
         if (Mathf.Abs(scroll) > 0.01f)
         {
-            currentHeight -= scroll * zoomSpeed * Time.deltaTime * 10f; // µ÷ÕûËõ·Å
+            currentHeight -= scroll * zoomSpeed * Time.deltaTime * 10f; // è°ƒæ•´ç¼©æ”¾
             currentHeight = Mathf.Clamp(currentHeight, minHeight, maxHeight);
             targetPosition.y = currentHeight;
         }

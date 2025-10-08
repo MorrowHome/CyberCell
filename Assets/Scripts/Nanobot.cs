@@ -3,9 +3,20 @@ using UnityEngine;
 
 public class Nanobot : MonoBehaviour
 {
-    [Header("½¨Ôì²ÎÊı")]
-    [SerializeField] private float moveSpeed = 4f;
+    public static Nanobot Instance { get; private set; }
+
+    private PlayerInputActions input;
+
+    [Header("å»ºé€ å‚æ•°")]
+    [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float buildTime = 2f;
+    [SerializeField] private AnimationCurve buildCurve;
+
+    [Header("å»ºé€ ç‰¹æ•ˆ")]
+    [SerializeField] private ParticleSystem buildParticles;
+    [SerializeField] private LineRenderer buildBeam;
+    [SerializeField] private Transform beamStartPoint;
+
 
     private bool isBusy = false;
     private Vector3 targetPos;
@@ -13,7 +24,7 @@ public class Nanobot : MonoBehaviour
     private CubeGrid targetGrid;
     private int actionPointCost;
 
-    [Header("¹¥»÷²ÎÊı")]
+    [Header("æ”»å‡»å‚æ•°")]
     [SerializeField] private float defenseRange = 6f;
     [SerializeField] private float attackRate = 1.5f;
     [SerializeField] private float attackDamage = 10f;
@@ -22,24 +33,30 @@ public class Nanobot : MonoBehaviour
 
     private Coroutine attackRoutine;
 
+    private void Awake()
+    {
+        input = InputManager.Instance.inputActions;
+    }
     private void Start()
     {
         attackRoutine = StartCoroutine(AutoAttack());
-    }
-
-    private void OnDisable()
-    {
-        if (attackRoutine != null)
-            StopCoroutine(attackRoutine);
+        input.Player.StopBuilding.performed += ctx =>
+        {
+            if (isBusy)
+            {
+                StopAllCoroutines();
+                isBusy = false;
+                if (buildParticles != null) buildParticles.Stop();
+                if (buildBeam != null) buildBeam.enabled = false;
+                Debug.Log("å»ºé€ è¢«å–æ¶ˆã€‚");
+                attackRoutine = StartCoroutine(AutoAttack());
+            }
+        };
     }
 
     public void AssignBuildTask(Vector3 target, GameObject prefab, CubeGrid grid, int cost)
     {
-        if (isBusy)
-        {
-            Debug.Log("Nanobot ÕıÃ¦£¬ÇëµÈ´ıµ±Ç°½¨ÔìÍê³É¡£");
-            return;
-        }
+        if (isBusy) return;
 
         targetPos = target;
         buildPrefab = prefab;
@@ -53,44 +70,87 @@ public class Nanobot : MonoBehaviour
     {
         isBusy = true;
 
-        // Í£Ö¹¹¥»÷
-        if (attackRoutine != null)
-            StopCoroutine(attackRoutine);
-
-        while (Vector3.Distance(transform.position, targetPos) > 0.1f)
+        // 1. ç›´çº¿ç§»åŠ¨åˆ°ç›®æ ‡
+        while (Vector3.Distance(transform.position, targetPos) > 0.05f)
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
             yield return null;
         }
 
-        yield return new WaitForSeconds(buildTime);
-
+        // 2. æ£€æŸ¥è¡ŒåŠ¨ç‚¹
         if (!GameManager.Instance.HasEnoughPoints(actionPointCost))
         {
-            Debug.Log("ĞĞ¶¯µã²»×ã£¬½¨ÔìÊ§°Ü¡£");
+            Debug.Log("è¡ŒåŠ¨ç‚¹ä¸è¶³ï¼Œå»ºé€ å¤±è´¥ã€‚");
             isBusy = false;
-            attackRoutine = StartCoroutine(AutoAttack());
             yield break;
         }
-
         GameManager.Instance.SpendPoints(actionPointCost);
 
+        // 3. å®ä¾‹åŒ–å»ºç­‘
         GameObject ins = Instantiate(buildPrefab, targetPos, Quaternion.identity, targetGrid.transform);
+        ins.transform.localScale = Vector3.zero;
+
+        // 4. å¯åŠ¨ç²’å­ç‰¹æ•ˆå’Œå»ºé€ å…‰æŸ
+        if (buildParticles != null)
+        {
+            // åœæ­¢å¹¶æ¸…ç©ºä¹‹å‰çš„ç²’å­
+            buildParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            // ç§»åŠ¨åˆ°ç›®æ ‡ä½ç½®
+            buildParticles.transform.position = targetPos;
+
+            // ä»å¤´æ’­æ”¾
+            buildParticles.Play();
+        }
+
+
+        if (buildBeam != null && beamStartPoint != null)
+        {
+            buildBeam.enabled = true;
+            buildBeam.SetPosition(0, beamStartPoint.position);
+            buildBeam.SetPosition(1, targetPos);
+        }
+
+        // 5. å»ºé€ æ¸æ˜¾åŠ¨ç”»
+        float t = 0f;
+        while (t < buildTime)
+        {
+            t += Time.deltaTime;
+            float factor = buildCurve != null ? buildCurve.Evaluate(t / buildTime) : t / buildTime;
+            ins.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, factor);
+
+            if (buildBeam != null && beamStartPoint != null)
+                buildBeam.SetPosition(0, beamStartPoint.position);
+
+            yield return null;
+        }
+        ins.transform.localScale = Vector3.one;
+
+        // 6. åœæ­¢ç‰¹æ•ˆ
+        if (buildParticles != null) buildParticles.Stop();
+        if (buildBeam != null) buildBeam.enabled = false;
+
         targetGrid.whatIsOnMe = ins.transform;
         targetGrid.isOccupied = true;
 
         BloodVessel vessel = ins.GetComponent<BloodVessel>();
-        if (vessel != null)
-        {
-            vessel.Init();
-        }
+        if (vessel != null) vessel.Init();
 
         BuildManager.Instance.OnBuildFinished();
         isBusy = false;
-
-        // »Ö¸´¹¥»÷
-        attackRoutine = StartCoroutine(AutoAttack());
+                attackRoutine = StartCoroutine(AutoAttack());
     }
+
+
+
+
+
+    private void OnDisable()
+    {
+        if (attackRoutine != null)
+            StopCoroutine(attackRoutine);
+    }
+
 
     private IEnumerator AutoAttack()
     {
@@ -135,7 +195,7 @@ public class Nanobot : MonoBehaviour
     {
         if (target == null) yield break;
 
-        // ÏÔÊ¾¼¤¹â
+        // æ˜¾ç¤ºæ¿€å…‰
         if (laserLine)
         {
             laserLine.enabled = true;
@@ -143,7 +203,7 @@ public class Nanobot : MonoBehaviour
             laserLine.SetPosition(1, target.position);
         }
 
-        // Ôì³ÉÉËº¦
+        // é€ æˆä¼¤å®³
         if (target.TryGetComponent<IDamageable>(out var dmg))
         {
             dmg.TakeDamage(attackDamage);
@@ -151,7 +211,7 @@ public class Nanobot : MonoBehaviour
 
         yield return new WaitForSeconds(0.1f);
 
-        // Òş²Ø¼¤¹â
+        // éšè—æ¿€å…‰
         if (laserLine)
             laserLine.enabled = false;
     }
@@ -162,3 +222,5 @@ public class Nanobot : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, defenseRange);
     }
 }
+
+

@@ -1,9 +1,9 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Virus : MonoBehaviour, IDamageable
+public class Virus : MonoBehaviour, IDamageable, IDamaging
 {
-    [Header("ÒÆ¶¯²ÎÊý")]
+    [Header("ç§»åŠ¨å‚æ•°")]
     [SerializeField] private float speed = 3f;
     [SerializeField] private Transform target;
 
@@ -12,7 +12,11 @@ public class Virus : MonoBehaviour, IDamageable
 
     [SerializeField] private Rigidbody rb;
 
+    [SerializeField] private float damage = 1f;
+
     float IDamageable.HP => HP;
+
+    public float Damage => damage;
 
     void Start()
     {
@@ -51,5 +55,14 @@ public class Virus : MonoBehaviour, IDamageable
     private void Die()
     {
         Destroy(gameObject);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.transform.parent.CompareTag("HeartCell"))
+        {
+            GameManager.Instance.TakeDamage(damage);
+            Die();
+        }
     }
 }

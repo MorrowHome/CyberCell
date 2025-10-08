@@ -13,8 +13,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int maxActionPoints = 40;
     [SerializeField] private int actionPointsPerTurn = 20;
     [SerializeField] private float glucoseConcentration = 500f;
-    private int waveCounts = 0;
 
+    [SerializeField] public float HP = 10f;
+    private int waveCounts = 0;
+    
     public float GlucoseConcentration => glucoseConcentration;
 
     public int ActionPoints => actionPoints;
@@ -91,5 +93,14 @@ public class GameManager : MonoBehaviour
             aaa.enabled = false;
         }
         EnemyManager.Instance.StartNewWave(waveCounts * 10);
+    }
+
+    public void TakeDamage(float dmg)
+    {
+        HP -= dmg;
+        if (HP <= 0f)
+        {
+            UIManager.Instance.gameOverPanel.SetActive(true);
+        }
     }
 }

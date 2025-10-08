@@ -145,6 +145,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""StopBuilding"",
+                    ""type"": ""Button"",
+                    ""id"": ""bf2d9da4-c6b5-48db-ab28-04a0a6afa52a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -255,6 +264,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""LClick"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fd0eef94-fecd-468e-830c-f8312835e23f"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""StopBuilding"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -555,6 +575,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_FlyDown = m_Player.FindAction("FlyDown", throwIfNotFound: true);
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_LClick = m_Player.FindAction("LClick", throwIfNotFound: true);
+        m_Player_StopBuilding = m_Player.FindAction("StopBuilding", throwIfNotFound: true);
         // Camera
         m_Camera = asset.FindActionMap("Camera", throwIfNotFound: true);
         m_Camera_MiddleClick = m_Camera.FindAction("MiddleClick", throwIfNotFound: true);
@@ -663,6 +684,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_FlyDown;
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_LClick;
+    private readonly InputAction m_Player_StopBuilding;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -698,6 +720,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/LClick".
         /// </summary>
         public InputAction @LClick => m_Wrapper.m_Player_LClick;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/StopBuilding".
+        /// </summary>
+        public InputAction @StopBuilding => m_Wrapper.m_Player_StopBuilding;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -742,6 +768,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @LClick.started += instance.OnLClick;
             @LClick.performed += instance.OnLClick;
             @LClick.canceled += instance.OnLClick;
+            @StopBuilding.started += instance.OnStopBuilding;
+            @StopBuilding.performed += instance.OnStopBuilding;
+            @StopBuilding.canceled += instance.OnStopBuilding;
         }
 
         /// <summary>
@@ -771,6 +800,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @LClick.started -= instance.OnLClick;
             @LClick.performed -= instance.OnLClick;
             @LClick.canceled -= instance.OnLClick;
+            @StopBuilding.started -= instance.OnStopBuilding;
+            @StopBuilding.performed -= instance.OnStopBuilding;
+            @StopBuilding.canceled -= instance.OnStopBuilding;
         }
 
         /// <summary>
@@ -1251,6 +1283,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLClick(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "StopBuilding" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnStopBuilding(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Camera" which allows adding and removing callbacks.

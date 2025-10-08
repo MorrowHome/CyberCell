@@ -5,21 +5,21 @@ public class MapGenerator : MonoBehaviour
 {
     public static MapGenerator Instance;
 
-    [Header("µØÍ¼²ÎÊı")]
-    [SerializeField] private int COLS = 10;
-    [SerializeField] private int ROWS = 10;
-    [SerializeField] private int LAYS = 10;
+    [Header("åœ°å›¾å‚æ•°")]
+    [SerializeField] public int COLS = 10;
+    [SerializeField] public int ROWS = 10;
+    [SerializeField] public int LAYS = 10;
     [SerializeField] private float sizeScale = 5f;
 
-    [Header("¸ñ×ÓPrefab")]
-    [SerializeField] private GameObject cubeGridPrefab;                // ÆÕÍ¨¸ñ
-    [SerializeField] private GameObject cubeGridWithResourcesPrefab;   // ×ÊÔ´¸ñ
+    [Header("æ ¼å­Prefab")]
+    [SerializeField] private GameObject cubeGridPrefab;                // æ™®é€šæ ¼
+    [SerializeField] private GameObject cubeGridWithResourcesPrefab;   // èµ„æºæ ¼
 
-    [Header("×ÊÔ´·Ö²¼²ÎÊı")]
-    [SerializeField, Range(0f, 1f)] private float resourceSpawnChance = 0.1f; // »ù´¡¸ÅÂÊ
-    [SerializeField, Range(0f, 1f)] private float clusterBonus = 0.25f;       // ÁÚ¾Ó¼Ó³É¸ÅÂÊ
+    [Header("èµ„æºåˆ†å¸ƒå‚æ•°")]
+    [SerializeField, Range(0f, 1f)] private float resourceSpawnChance = 0.1f; // åŸºç¡€æ¦‚ç‡
+    [SerializeField, Range(0f, 1f)] private float clusterBonus = 0.25f;       // é‚»å±…åŠ æˆæ¦‚ç‡
 
-    [Header("¸¨ÖúÏÔÊ¾")]
+    [Header("è¾…åŠ©æ˜¾ç¤º")]
     [SerializeField] private Material lineMaterial;
     [SerializeField] private Transform lineContainer;
     [SerializeField] private GameObject heartCellPrefab;
@@ -38,7 +38,7 @@ public class MapGenerator : MonoBehaviour
     public List<Transform> allGrids = new List<Transform>();
 
     private int ID = 0;
-    private bool[,,] resourceMap;  // ¼ÇÂ¼¸ñ×ÓÊÇ·ñÊÇ×ÊÔ´¸ñ
+    private bool[,,] resourceMap;  // è®°å½•æ ¼å­æ˜¯å¦æ˜¯èµ„æºæ ¼
 
     public Transform heartCellTransform;
     private void Awake()
@@ -65,7 +65,7 @@ public class MapGenerator : MonoBehaviour
                 {
                     float chance = resourceSpawnChance;
 
-                    // ¼ì²éÁÚ¾Ó£¬Èç¹ûÓĞ×ÊÔ´¸ñÔòÔö¼Ó¸ÅÂÊ
+                    // æ£€æŸ¥é‚»å±…ï¼Œå¦‚æœæœ‰èµ„æºæ ¼åˆ™å¢åŠ æ¦‚ç‡
                     if (HasResourceNeighbor(x, y, z))
                     {
                         chance += clusterBonus;
@@ -87,10 +87,10 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    // ÅĞ¶ÏÄ³¸ñÊÇ·ñÓĞ×ÊÔ´ÁÚ¾Ó
+    // åˆ¤æ–­æŸæ ¼æ˜¯å¦æœ‰èµ„æºé‚»å±…
     private bool HasResourceNeighbor(int x, int y, int z)
     {
-        // Ö»¼ì²éÖ®Ç°Éú³ÉµÄ¸ñ×Ó£¨±ÜÃâÎ´À´Î´Éú³ÉµÄ¸ñ×ÓÓ°Ïì£©
+        // åªæ£€æŸ¥ä¹‹å‰ç”Ÿæˆçš„æ ¼å­ï¼ˆé¿å…æœªæ¥æœªç”Ÿæˆçš„æ ¼å­å½±å“ï¼‰
         int[] dx = { -1, 0, 1 };
         int[] dy = { -1, 0, 1 };
         int[] dz = { -1, 0, 1 };
@@ -101,7 +101,7 @@ public class MapGenerator : MonoBehaviour
             {
                 foreach (int k in dz)
                 {
-                    if (i == 0 && j == 0 && k == 0) continue; // Ìø¹ı×ÔÉí
+                    if (i == 0 && j == 0 && k == 0) continue; // è·³è¿‡è‡ªèº«
 
                     int nx = x + i, ny = y + j, nz = z + k;
                     if (nx >= 0 && nx < COLS &&
@@ -140,7 +140,7 @@ public class MapGenerator : MonoBehaviour
         GameObject lineParent = new GameObject("GridLines");
         lineParent.transform.parent = lineContainer;
 
-        // X·½Ïò
+        // Xæ–¹å‘
         for (int y = 0; y <= LAYS; y++)
         {
             for (int z = 0; z <= ROWS; z++)
@@ -151,7 +151,7 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        // Y·½Ïò
+        // Yæ–¹å‘
         for (int x = 0; x <= COLS; x++)
         {
             for (int z = 0; z <= ROWS; z++)
@@ -162,7 +162,7 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        // Z·½Ïò
+        // Zæ–¹å‘
         for (int x = 0; x <= COLS; x++)
         {
             for (int y = 0; y <= LAYS; y++)

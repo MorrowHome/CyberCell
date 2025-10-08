@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3525525699544310932}
   - component: {fileID: 6802257210846970341}
   - component: {fileID: 7646175217860845514}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: SelectedVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 7321425763031991277}
   - component: {fileID: 2326607436588200836}
   - component: {fileID: 5717518370310550407}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -211,7 +211,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -233,7 +233,8 @@ GameObject:
   - component: {fileID: 7363086579112285059}
   - component: {fileID: 5561822487488638187}
   - component: {fileID: 1095183244070127108}
-  m_Layer: 6
+  - component: {fileID: 3856741325363477897}
+  m_Layer: 7
   m_Name: BloodVessel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -272,6 +273,8 @@ MonoBehaviour:
   connected: {fileID: 2100000, guid: 8415e3f806a7a7b408b26386e81273bb, type: 2}
   disconnected: {fileID: 2100000, guid: 110b5cf7e90254247bde91ef7b1ee34d, type: 2}
   myVisual: {fileID: 4014043351534879063}
+  actionPointCost: 1
+  glucoseAmount: 10
   isConnected: 0
 --- !u!114 &1095183244070127108
 MonoBehaviour:
@@ -286,3 +289,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SelectedVisual
   selectedVisual: {fileID: 1089068638719752055}
+--- !u!114 &3856741325363477897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6992505983236303664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fffe920fc154c54583ffa1d179994ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BloodVesselVisual
+  myVisual: {fileID: 4014043351534879063}
+  colorMaxGlucose: 100
+  lowColor: {r: 0.7830189, g: 0.4986205, b: 0.4986205, a: 0.78039217}
+  highColor: {r: 0.6698113, g: 0, b: 0, a: 1}
+  redBloodCellPrefab: {fileID: 2987886961554368533, guid: 4c1b40c6c9d4c0141bbe6b35170cf09a, type: 3}
+  maxRedCells: 20
+  redCellRadius: 0.3
+  rotationSpeed: 30

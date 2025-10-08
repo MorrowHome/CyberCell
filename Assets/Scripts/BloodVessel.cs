@@ -7,7 +7,10 @@ public class BloodVessel : MonoBehaviour, IActionPointCost
     [SerializeField] private Material disconnected;
     [SerializeField] private GameObject myVisual;
     [SerializeField] public int actionPointCost = 1;
-    [SerializeField] private float glucoseConcentration = 10f;
+    [SerializeField] private float glucoseAmount = 10f;
+    public float GlucoseAmount => glucoseAmount;
+    public void SetGlucoseAmount(float value) => glucoseAmount = Mathf.Max(0f, value);
+
     public int ActionPointCost => actionPointCost;
 
     private Transform parentCubeGrid;
@@ -17,19 +20,25 @@ public class BloodVessel : MonoBehaviour, IActionPointCost
 
     private void Awake()
     {
-        // È·¶¨×Ô¼ºÊôÓÚÄÄ¸ö CubeGrid
+        // ç¡®å®šè‡ªå·±å±äºå“ªä¸ª CubeGrid
         if (parentCubeGrid == null)
             parentCubeGrid = transform.parent;
 
-        // ÄÃµ½×Ô¼ºÔÚµØÍ¼ÖĞµÄ×ø±ê
+
+    }
+
+    private void Start()
+    {
+        // æ‹¿åˆ°è‡ªå·±åœ¨åœ°å›¾ä¸­çš„åæ ‡
         if (!MapGenerator.Instance.Transform_Vector3_Dictionary.TryGetValue(parentCubeGrid, out positionVector3))
         {
-            Debug.LogError("BloodVessel ÕÒ²»µ½¶ÔÓ¦µÄ CubeGrid ×ø±ê£¡");
+            Debug.LogError("BloodVessel æ‰¾ä¸åˆ°å¯¹åº”çš„ CubeGrid åæ ‡ï¼");
         }
+        Init();
     }
 
     /// <summary>
-    /// ³õÊ¼»¯Ñª¹Ü£¨·ÅÖÃÊ±µ÷ÓÃ£©
+    /// åˆå§‹åŒ–è¡€ç®¡ï¼ˆæ”¾ç½®æ—¶è°ƒç”¨ï¼‰
     /// </summary>
     public void Init()
     {
@@ -46,18 +55,19 @@ public class BloodVessel : MonoBehaviour, IActionPointCost
 
     public void UpdateMaterial()
     {
-        if (myVisual != null)
-        {
-            MeshRenderer renderer = myVisual.GetComponent<MeshRenderer>();
-            if (renderer != null)
-            {
-                renderer.material = isConnected ? connected : disconnected;
-            }
-        }
+        if (myVisual == null) return;
+        var renderer = myVisual.GetComponent<MeshRenderer>();
+        if (renderer == null) return;
+
+
     }
 
+
+
+
+
     /// <summary>
-    /// BFS ÅĞ¶ÏÊÇ·ñÁ¬Í¨ĞÄÔà
+    /// BFS åˆ¤æ–­æ˜¯å¦è¿é€šå¿ƒè„
     /// </summary>
     public bool CheckConnectivityBFS()
     {
