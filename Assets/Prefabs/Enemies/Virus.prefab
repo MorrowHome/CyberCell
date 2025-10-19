@@ -111,6 +111,7 @@ MonoBehaviour:
   target: {fileID: 0}
   HP: 50
   rb: {fileID: 0}
+  damage: 1
 --- !u!135 &5709853574035695965
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -193,8 +194,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 2
-  m_Color: {r: 0.6675031, g: 0.9245283, b: 0.40557134, a: 1}
-  m_Intensity: 400
+  m_Color: {r: 0.29359967, g: 0.5849056, b: 0, a: 1}
+  m_Intensity: 200
   m_Range: 20
   m_SpotAngle: 45
   m_InnerSpotAngle: 21.80208
@@ -335,15 +336,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 5c2aa5f1271c86b40b7016e1f82ff669, type: 3}
       propertyPath: m_Color.b
-      value: 0.40557134
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 5c2aa5f1271c86b40b7016e1f82ff669, type: 3}
       propertyPath: m_Color.g
-      value: 0.9245283
+      value: 0.6603774
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 5c2aa5f1271c86b40b7016e1f82ff669, type: 3}
       propertyPath: m_Color.r
-      value: 0.6675031
+      value: 0.33148354
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 5c2aa5f1271c86b40b7016e1f82ff669, type: 3}
       propertyPath: m_Enabled

@@ -78,8 +78,8 @@ public class GameManager : MonoBehaviour
         foreach (var grid in MapGenerator.Instance.allGrids)
         {
             grid.transform.TryGetComponent<CubeGrid>(out var cubeGrid);
-            cubeGrid.myVisual.TryGetComponent<MeshRenderer>(out var aaa);
-            aaa.enabled = true;
+            //cubeGrid.myVisual.TryGetComponent<MeshRenderer>(out var aaa);
+            //aaa.enabled = true;
         }
         ObjectPoolManager.Instance.AsleepAll();
     }

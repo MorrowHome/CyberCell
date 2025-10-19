@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GlucoseCubeGrid : MonoBehaviour
+public class GlucoseCubeGrid : MonoBehaviour, IHasHoverInfo
 {
     [Header("Resource Parameters")]
     [Tooltip("Current amount of glucose in this cube")]
@@ -16,6 +16,10 @@ public class GlucoseCubeGrid : MonoBehaviour
     [SerializeField] private GameObject emptyGridPrefab;
     [Tooltip("Original children that shouldn't be transferred to new grid")]
     [SerializeField] private Transform[] originalChildren;
+
+    public string HoverInfoTitle => "Glucose Resource";
+
+    public string HoverInfoContent => $"Glucose Amount: {glucoseAmount:F2}";
 
     private void Start()
     {
@@ -51,7 +55,7 @@ public class GlucoseCubeGrid : MonoBehaviour
         newGrid.transform.TryGetComponent<CubeGrid>(out var aaa);
         aaa.isOccupied = true;
 
-        // Collect non-original children first (避免在遍历时修改 transform.childCount 导致跳过)
+        // Collect non-original children first (閬垮厤鍦ㄩ亶鍘嗘椂淇敼 transform.childCount 瀵艰嚧璺宠繃)
         List<Transform> childrenToMove = new List<Transform>();
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
@@ -68,7 +72,7 @@ public class GlucoseCubeGrid : MonoBehaviour
             child.SetParent(newGrid.transform, true);
         }
 
-        // 安全更新 MapGenerator 的字典（先检查存在与否）
+        // 瀹夊叏鏇存柊 MapGenerator 鐨勫瓧鍏革紙鍏堟鏌ュ瓨鍦ㄤ笌鍚︼級
         if (MapGenerator.Instance != null)
         {
             if (MapGenerator.Instance.Transform_Vector3_Dictionary.TryGetValue(transform, out var pos))

@@ -270,12 +270,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e36351f151b87d4dbd00b6d80487203, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BloodVessel
+  bloodVesselForward: {fileID: 0}
+  bloodVesselBack: {fileID: 0}
+  bloodVesselLeft: {fileID: 0}
+  bloodVesselRight: {fileID: 0}
+  neighborBloodVessels: []
   connected: {fileID: 2100000, guid: 8415e3f806a7a7b408b26386e81273bb, type: 2}
   disconnected: {fileID: 2100000, guid: 110b5cf7e90254247bde91ef7b1ee34d, type: 2}
   myVisual: {fileID: 4014043351534879063}
   actionPointCost: 1
   glucoseAmount: 10
+  distanceFromHeart: 0
+  isCorrupted: 0
+  corruptionDuration: 5
   isConnected: 0
+  vesselType: 0
+  vesselDirection: 12
 --- !u!114 &1095183244070127108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301,11 +311,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fffe920fc154c54583ffa1d179994ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BloodVesselVisual
-  myVisual: {fileID: 4014043351534879063}
+  myVisual: {fileID: 0}
   colorMaxGlucose: 100
-  lowColor: {r: 0.7830189, g: 0.4986205, b: 0.4986205, a: 0.78039217}
-  highColor: {r: 0.6698113, g: 0, b: 0, a: 1}
+  lowColor: {r: 0.2, g: 0, b: 0, a: 1}
+  highColor: {r: 0.7, g: 0, b: 0, a: 1}
   redBloodCellPrefab: {fileID: 2987886961554368533, guid: 4c1b40c6c9d4c0141bbe6b35170cf09a, type: 3}
-  maxRedCells: 20
-  redCellRadius: 0.3
+  maxCellsPerBranch: 200
+  redCellRadius: 5
   rotationSpeed: 30
+  flowSpeed: 4
+  jitterRange: 0.01
+  branchLengthScale: 10
+  branchSplitRatio: 0.5
+  startOffset: {x: 0, y: 0, z: 0}

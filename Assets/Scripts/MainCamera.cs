@@ -3,126 +3,141 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// 使用新输入系统的主摄像机控制：
-/// - 固定高度 & 固定俯仰角
-/// - 鼠标中键拖动平移
-/// - 鼠标右键左右拖动旋转
-/// - 鼠标滚轮缩放
+/// 自由旋转 + 平移 + 缩放 摄像机控制（新输入系统版）
+/// - 鼠标右键：旋转（Yaw + Pitch）
+/// - 鼠标中键：平移
+/// - 滚轮：缩放（围绕焦点）
 /// </summary>
 [RequireComponent(typeof(Camera))]
-public class FixedPitchCamera_NewInput : MonoBehaviour
+public class FreeLookCamera : MonoBehaviour
 {
-    [Header("固定设置")]
-    public float fixedPitch = 45f; // 固定俯仰角
-    public float minHeight = 5f;   // 最小高度
-    public float maxHeight = 50f;  // 最大高度
+    [Header("焦点控制")]
+    public Vector3 pivot = Vector3.zero;    // 当前旋转焦点
+    public float distance = 20f;            // 当前距离
+    public float minDistance = 5f;
+    public float maxDistance = 80f;
 
-    [Header("控制速度")]
-    public float panSpeed = 10f;
-    public float rotateSpeed = 120f;
-    public float zoomSpeed = 5f;   // 滚轮缩放速度
+    [Header("旋转限制")]
+    public float minPitch = 10f;
+    public float maxPitch = 80f;
 
-    [Header("平滑")]
-    public bool smooth = true;
-    public float smoothSpeed = 12f;
+    [Header("速度参数")]
+    public float rotateSpeed = 100f;
+    public float panSpeed = 0.5f;
+    public float zoomSpeed = 10f;
+
+    [Header("平滑参数")]
+    public float smoothTime = 0.12f;
+
+    [Header("初始化设置")]
+    public bool useCustomInit = false;      // 是否使用自定义初始状态
+    public Vector3 initPivot = Vector3.zero;
+    public float initYaw = 0f;
+    public float initPitch = 45f;
+    public float initDistance = 20f;
 
     private float yaw;
-    private float currentHeight;
-    private Vector3 targetPosition;
-    private Quaternion targetRotation;
+    private float pitch;
+    private float targetDistance;
+    private Vector3 targetPivot;
+    private Vector3 pivotVelocity;
 
-    // 新输入系统
-    private PlayerInputActions playerInput;
-    private InputAction lookAction;
-    private InputAction middleButtonAction;
-    private InputAction rightButtonAction;
-    private InputAction scrollAction;
+    private PlayerInputActions input;
+    private InputAction look;
+    private InputAction scroll;
+    private InputAction middle;
+    private InputAction right;
 
     void Awake()
     {
-        playerInput = new PlayerInputActions();
-
-        // 定义输入
-        lookAction = playerInput.Camera.Look;                // 鼠标移动 (Vector2)
-        middleButtonAction = playerInput.Camera.MiddleClick; // 鼠标中键
-        rightButtonAction = playerInput.Camera.RightClick;   // 鼠标右键
-        scrollAction = playerInput.Camera.Scroll;            // 鼠标滚轮 (Vector2.y)
+        input = new PlayerInputActions();
+        look = input.Camera.Look;
+        scroll = input.Camera.Scroll;
+        middle = input.Camera.MiddleClick;
+        right = input.Camera.RightClick;
     }
 
-    void OnEnable() => playerInput.Enable();
-    void OnDisable() => playerInput.Disable();
+    void OnEnable() => input.Enable();
+    void OnDisable() => input.Disable();
 
     void Start()
     {
-        yaw = transform.eulerAngles.y;
-        currentHeight = transform.position.y;
-        targetPosition = new Vector3(transform.position.x, currentHeight, transform.position.z);
-        targetRotation = Quaternion.Euler(fixedPitch, yaw, 0f);
-        transform.rotation = targetRotation;
-        transform.position = targetPosition;
+        if (useCustomInit)
+        {
+            // 使用 Inspector 自定义的初始状态
+            pivot = initPivot;
+            yaw = initYaw;
+            pitch = Mathf.Clamp(initPitch, minPitch, maxPitch);
+            distance = Mathf.Clamp(initDistance, minDistance, maxDistance);
+        }
+        else
+        {
+            // 自动从当前位置推算初始状态
+            Vector3 dir = (transform.position - pivot).normalized;
+            distance = Vector3.Distance(transform.position, pivot);
+            pitch = Mathf.Asin(dir.y) * Mathf.Rad2Deg;
+            yaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+        }
+
+        targetPivot = pivot;
+        targetDistance = distance;
     }
 
     void LateUpdate()
     {
-        // 如果鼠标在 UI 上，就不执行建造/删除
-        if (EventSystem.current.IsPointerOverGameObject()) return;
+        if (EventSystem.current && EventSystem.current.IsPointerOverGameObject())
+            return;
 
-        Vector2 look = lookAction.ReadValue<Vector2>();
-        float scroll = scrollAction.ReadValue<Vector2>().y;
+        Vector2 lookDelta = look.ReadValue<Vector2>();
+        float scrollDelta = scroll.ReadValue<Vector2>().y;
 
-        HandleRotation(look);
-        HandlePan(look);
-        HandleZoom(scroll);
+        HandleRotation(lookDelta);
+        HandlePan(lookDelta);
+        HandleZoom(scrollDelta);
 
-        targetRotation = Quaternion.Euler(fixedPitch, yaw, 0f);
+        pivot = Vector3.SmoothDamp(pivot, targetPivot, ref pivotVelocity, smoothTime);
+        distance = Mathf.Lerp(distance, targetDistance, 1f - Mathf.Exp(-5f * Time.deltaTime));
 
-        ApplySmoothing();
+        // 构造旋转与位置
+        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
+        Vector3 offset = rotation * new Vector3(0, 0, -distance);
+        transform.position = pivot + offset;
+        transform.rotation = rotation;
     }
 
-    private void HandleRotation(Vector2 look)
+    void HandleRotation(Vector2 lookDelta)
     {
-        if (rightButtonAction.IsPressed())
+        if (right.IsPressed())
         {
-            yaw += look.x * rotateSpeed * Time.deltaTime * 0.01f; // 缩小灵敏度
-        }
-    }
-
-    private void HandlePan(Vector2 look)
-    {
-        if (middleButtonAction.IsPressed())
-        {
-            Vector3 right = transform.right;
-            Vector3 forward = transform.forward;
-            forward.y = 0f;
-            forward.Normalize();
-
-            Vector3 move = (-right * look.x - forward * look.y) * panSpeed * Time.deltaTime * 0.01f;
-            targetPosition += move;
-            targetPosition.y = currentHeight;
+            yaw += lookDelta.x * rotateSpeed * Time.deltaTime * 0.1f;
+            pitch -= lookDelta.y * rotateSpeed * Time.deltaTime * 0.1f;
+            pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
         }
     }
 
-    private void HandleZoom(float scroll)
+    void HandlePan(Vector2 lookDelta)
     {
-        if (Mathf.Abs(scroll) > 0.01f)
+        if (middle.IsPressed())
         {
-            currentHeight -= scroll * zoomSpeed * Time.deltaTime * 10f; // 调整缩放
-            currentHeight = Mathf.Clamp(currentHeight, minHeight, maxHeight);
-            targetPosition.y = currentHeight;
+            Vector3 rightDir = transform.right;
+            Vector3 forwardDir = transform.forward;
+            forwardDir.y = 0;
+            forwardDir.Normalize();
+
+            float panFactor = Mathf.Max(Mathf.Pow(distance * 0.1f, 0.8f), 1f);
+            Vector3 move = (-rightDir * lookDelta.x - forwardDir * lookDelta.y)
+                           * panSpeed * panFactor * Time.deltaTime;
+
+            targetPivot += move;
         }
     }
 
-    private void ApplySmoothing()
+
+    void HandleZoom(float scrollDelta)
     {
-        if (smooth)
-        {
-            transform.position = Vector3.Lerp(transform.position, targetPosition, 1f - Mathf.Exp(-smoothSpeed * Time.deltaTime));
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 1f - Mathf.Exp(-smoothSpeed * Time.deltaTime));
-        }
-        else
-        {
-            transform.position = targetPosition;
-            transform.rotation = targetRotation;
-        }
+        if (Mathf.Abs(scrollDelta) < 0.01f) return;
+
+        targetDistance -= scrollDelta * zoomSpeed * Time.deltaTime * 10f;
+        targetDistance = Mathf.Clamp(targetDistance, minDistance, maxDistance);
     }
 }

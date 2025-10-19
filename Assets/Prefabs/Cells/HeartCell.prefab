@@ -123,6 +123,7 @@ GameObject:
   - component: {fileID: 4916659950938630368}
   - component: {fileID: 6949133045784943516}
   - component: {fileID: 2228915594334584955}
+  - component: {fileID: -6204802388836757812}
   m_Layer: 0
   m_Name: HeartCell
   m_TagString: HeartCell
@@ -174,12 +175,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e36351f151b87d4dbd00b6d80487203, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BloodVessel
+  bloodVesselForward: {fileID: 0}
+  bloodVesselBack: {fileID: 0}
+  bloodVesselLeft: {fileID: 0}
+  bloodVesselRight: {fileID: 0}
+  neighborBloodVessels: []
   connected: {fileID: 0}
   disconnected: {fileID: 0}
   myVisual: {fileID: 0}
   actionPointCost: 1
   glucoseAmount: 10
+  distanceFromHeart: 0
+  isCorrupted: 0
+  corruptionDuration: 5
   isConnected: 1
+  vesselType: 0
+  vesselDirection: 12
+--- !u!114 &-6204802388836757812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3736499583283722358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fffe920fc154c54583ffa1d179994ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BloodVesselVisual
+  myVisual: {fileID: 0}
+  colorMaxGlucose: 100
+  lowColor: {r: 0.2, g: 0, b: 0, a: 1}
+  highColor: {r: 0.7, g: 0, b: 0, a: 1}
+  redBloodCellPrefab: {fileID: 2987886961554368533, guid: 4c1b40c6c9d4c0141bbe6b35170cf09a, type: 3}
+  maxCellsPerBranch: 20
+  redCellRadius: 0.3
+  rotationSpeed: 30
+  flowSpeed: 2
+  jitterRange: 0.01
+  branchSplitRatio: 0.5
+  startOffset: {x: 0, y: 0, z: 0}
 --- !u!1001 &5974812042976009732
 PrefabInstance:
   m_ObjectHideFlags: 0

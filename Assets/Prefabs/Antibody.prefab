@@ -51,7 +51,7 @@ MonoBehaviour:
   lifeTime: 20
   searchRange: 500
   jitterStrength: 0
-  snakeAmplitude: 50
+  snakeAmplitude: 25
   snakeFrequency: 1
   damage: 2
 --- !u!135 &6500258346538443543

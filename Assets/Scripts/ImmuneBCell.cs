@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ImmuneBCell : MonoBehaviour, IActionPointCost
+public class ImmuneBCell : MonoBehaviour, IActionPointCost, IHasHoverInfo
 {
     [Header("基础参数")]
     [SerializeField] private int actionPointCost = 5;
@@ -30,6 +30,11 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost
     private Transform parentCubeGrid;
 
     public int ActionPointCost => actionPointCost;
+
+    public string HoverInfoTitle => "Immune B Cell";
+
+    public string HoverInfoContent => $"Hungry Timer: {hungryTimer:F2}\n" +
+        $"Connect: {isConnected}";
 
     private void Start()
     {

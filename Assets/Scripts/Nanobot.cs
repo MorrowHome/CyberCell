@@ -71,9 +71,21 @@ public class Nanobot : MonoBehaviour
         isBusy = true;
 
         // 1. 直线移动到目标
-        while (Vector3.Distance(transform.position, targetPos) > 0.05f)
+        // 记录初始高度
+        float fixedY = transform.position.y;
+
+        // 移动到目标（只在X-Z平面移动）
+        while (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
+                                new Vector3(targetPos.x, 0, targetPos.z)) > 0.05f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+            Vector3 nextPos = Vector3.MoveTowards(
+                new Vector3(transform.position.x, 0, transform.position.z),
+                new Vector3(targetPos.x, 0, targetPos.z),
+                moveSpeed * Time.deltaTime
+            );
+
+            // 应用固定高度
+            transform.position = new Vector3(nextPos.x, fixedY, nextPos.z);
             yield return null;
         }
 
@@ -221,6 +233,7 @@ public class Nanobot : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, defenseRange);
     }
+
 }
 
 

@@ -38,6 +38,9 @@ public class UIManager : MonoBehaviour
     public Image HP;
     public TextMeshProUGUI HPTMP;
 
+    public Image AP;
+    public TextMeshProUGUI APTMP;
+
 
     private void Awake()
     {
@@ -84,6 +87,8 @@ public class UIManager : MonoBehaviour
 
         HP.fillAmount = GameManager.Instance.HP / 10f;
         HPTMP.text = "HP: " + Mathf.RoundToInt(GameManager.Instance.HP).ToString();
+        AP.fillAmount = GameManager.Instance.ActionPoints / 40f;
+        APTMP.text = "AP: " + Mathf.RoundToInt(GameManager.Instance.ActionPoints).ToString();
     }
 
     private void OnDestroy()
@@ -111,26 +116,26 @@ public class UIManager : MonoBehaviour
         }
 
         // 检查 Cube 上有没有 BloodVessel
-        BloodVessel vessel = hoveredCube.GetComponentInChildren<BloodVessel>();
-        if (vessel != null)
+        IHasHoverInfo hasHoverInfo = hoveredCube.GetComponentInChildren<IHasHoverInfo>();
+        if (hasHoverInfo != null)
         {
             Vector3 mousePos = UnityEngine.InputSystem.Mouse.current.position.ReadValue();
-            ShowHoverInfo(vessel, mousePos);
+            ShowHoverInfo(hasHoverInfo, mousePos);
         }
         else
         {
+            Debug.Log("No IHasHoverInfo found on hovered cube.");
             HideHoverInfo();
         }
     }
 
-    private void ShowHoverInfo(BloodVessel vessel, Vector3 mousePos)
+    private void ShowHoverInfo(IHasHoverInfo hasHoverInfo, Vector3 mousePos)
     {
         if (hoverPanel == null) return;
 
         hoverPanel.SetActive(true);
-        hoverTitleText.text = "BloodVessel";
-        hoverContentText.text = $"Glucose: {vessel.GlucoseAmount:F2}\n" +
-                                $"Connect: {(vessel.isConnected ? "True" : "False")}";
+        hoverTitleText.text = hasHoverInfo.HoverInfoTitle;
+        hoverContentText.text = hasHoverInfo.HoverInfoContent;
 
         // 跟随鼠标
         hoverPanel.transform.position = mousePos + hoverOffset;
