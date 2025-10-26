@@ -1,70 +1,176 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Bacteria : MonoBehaviour, IDamageable, IDamaging
 {
     [Header("移动参数")]
-    [SerializeField] private float speed = 1.5f; // 比病毒慢一些
-    [SerializeField] private Transform target;
+    [SerializeField] private float speed = 3f;
+    [SerializeField] private BloodVessel currentVessel; // 当前所在血管
+    [SerializeField] private float HP = 100f;
+    [SerializeField] private float damage = 1f;
+    [SerializeField] public float jianShangRate = 0.15f; // 受到免疫细胞攻击时，减少的伤害比例
 
-    [Header("生命与伤害参数")]
-    [SerializeField] private float HP = 20f; // 细菌生命更厚
-    [SerializeField] private float damage = 0.5f; // 单次伤害较小，但可以持续接触伤害
-    [SerializeField] private float damageInterval = 1f; // 每秒伤害间隔
-    private float damageTimer = 0f;
-
-    [SerializeField] private Rigidbody rb;
+    private Rigidbody rb;
+    private Queue<BloodVessel> pathToHeart = new Queue<BloodVessel>(); // 寻路路径
+    private CubeGrid currentGrid;
 
     float IDamageable.HP => HP;
     public float Damage => damage;
 
-    private bool isTouchingHeart = false; // 标记是否正在接触心脏
-
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        target = MapGenerator.Instance.heartCellTransform;
+
+        if (currentVessel == null)
+            currentVessel = FindNearestBloodVessel();
+
+        BuildPathToHeart();
     }
 
     void FixedUpdate()
     {
-        if (target == null || isTouchingHeart) return;
-
-        Vector3 direction = (target.position - transform.position).normalized;
-        rb.MovePosition(rb.position + direction * speed * Time.fixedDeltaTime);
-        transform.LookAt(target);
-    }
-
-    void Update()
-    {
-        // 如果正在接触心脏，每隔一定时间造成一次伤害
-        if (isTouchingHeart)
+        if (pathToHeart.Count == 0)
         {
-            damageTimer += Time.deltaTime;
-            if (damageTimer >= damageInterval)
-            {
-                GameManager.Instance.TakeDamage(damage);
-                damageTimer = 0f;
-            }
+            Vector3 d = (MapGenerator.Instance.heartCellTransform.position - transform.position).normalized;
+            rb.MovePosition(rb.position + d * speed * Time.fixedDeltaTime);
+            transform.LookAt(MapGenerator.Instance.heartCellTransform.position);
+            return;
+        }
+
+        BloodVessel targetVessel = pathToHeart.Peek();
+        Vector3 targetPos = targetVessel.transform.position + Vector3.up * 0.5f;
+
+        Vector3 direction = (targetPos - transform.position).normalized;
+        rb.MovePosition(rb.position + direction * speed * Time.fixedDeltaTime);
+        transform.LookAt(targetPos);
+
+        if (Vector3.Distance(transform.position, targetPos) < 0.1f)
+        {
+            pathToHeart.Dequeue();
+
+            // ---- 腐化血管 ----
+            targetVessel.ApplyCorruption();
+
+            currentVessel = targetVessel;
+            UpdateCurrentGrid();
         }
     }
 
-    public void SetTarget(Transform newTarget)
+    private void UpdateCurrentGrid()
     {
-        target = newTarget;
+        CubeGrid cube = GetCurrentCubeGrid();
+        if (cube != null && cube != currentGrid)
+        {
+            if (currentGrid != null)
+            {
+                currentGrid.isOccupied = false;
+                currentGrid.whatIsOnMe = null;
+            }
+            currentGrid = cube;
+            currentGrid.isOccupied = true;
+            currentGrid.whatIsOnMe = transform;
+        }
+    }
+
+    private CubeGrid GetCurrentCubeGrid()
+    {
+        Ray ray = new Ray(transform.position + Vector3.up * 0.5f, Vector3.down);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            return hit.collider.GetComponentInParent<CubeGrid>();
+        }
+        return null;
+    }
+
+    private BloodVessel FindNearestBloodVessel()
+    {
+        BloodVessel nearest = null;
+        float minDist = float.MaxValue;
+        foreach (var vessel in BloodVesselManager.bloodVesselManager.allBloodVessels)
+        {
+            float dist = Vector3.Distance(transform.position, vessel.transform.position);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = vessel;
+            }
+        }
+        return nearest;
+    }
+
+    private void BuildPathToHeart()
+    {
+        pathToHeart.Clear();
+        if (currentVessel == null)
+        {
+            Debug.LogError("Virus 找不到当前血管，无法寻路到心脏！");
+            return;
+        }
+
+        Queue<BloodVessel> queue = new Queue<BloodVessel>();
+        Dictionary<BloodVessel, BloodVessel> parentMap = new Dictionary<BloodVessel, BloodVessel>();
+        HashSet<BloodVessel> visited = new HashSet<BloodVessel>();
+
+        queue.Enqueue(currentVessel);
+        visited.Add(currentVessel);
+
+        BloodVessel heartVessel = MapGenerator.Instance.heartCellTransform.GetComponentInParent<BloodVessel>();
+        if (heartVessel == null) return;
+
+        bool found = false;
+
+        while (queue.Count > 0)
+        {
+            BloodVessel v = queue.Dequeue();
+            if (v == heartVessel)
+            {
+                found = true;
+                break;
+            }
+
+            foreach (var neighbor in v.neighborBloodVessels)
+            {
+                if (!visited.Contains(neighbor))
+                {
+                    visited.Add(neighbor);
+                    parentMap[neighbor] = v;
+                    queue.Enqueue(neighbor);
+                }
+            }
+        }
+
+        if (!found) return;
+
+        BloodVessel step = heartVessel;
+        Stack<BloodVessel> stack = new Stack<BloodVessel>();
+        while (step != currentVessel)
+        {
+            stack.Push(step);
+            step = parentMap[step];
+        }
+
+        while (stack.Count > 0)
+        {
+            pathToHeart.Enqueue(stack.Pop());
+        }
     }
 
     public void TakeDamage(float amount)
     {
-        HP -= amount;
+        HP -= amount*jianShangRate;
         if (HP <= 0f)
-        {
             Die();
-        }
     }
 
     private void Die()
     {
+        if (currentGrid != null)
+        {
+            currentGrid.isOccupied = false;
+            currentGrid.whatIsOnMe = null;
+        }
+        EnemyManager.Instance.enemiesAlive--;
         Destroy(gameObject);
     }
 
@@ -72,16 +178,8 @@ public class Bacteria : MonoBehaviour, IDamageable, IDamaging
     {
         if (other.transform.parent != null && other.transform.parent.CompareTag("HeartCell"))
         {
-            isTouchingHeart = true;
-            damageTimer = 0f; // 立即开始计时
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.transform.parent != null && other.transform.parent.CompareTag("HeartCell"))
-        {
-            isTouchingHeart = false;
+            GameManager.Instance.TakeDamage(damage);
+            Die();
         }
     }
 }

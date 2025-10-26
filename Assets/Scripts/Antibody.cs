@@ -2,28 +2,42 @@ using UnityEngine;
 
 public class Antibody : MonoBehaviour
 {
-    [Header("移动参数")]
+    [Header("绉诲姩鍙傛暟")]
     [SerializeField] private float speed = 10f;
     [SerializeField] private float lifeTime = 5f;
-    [SerializeField] private float searchRange = 10f;
+    [SerializeField] private float searchInterval = 0.3f; // 瀵绘晫闂撮殧鏃堕棿
 
-    [Header("运动效果")]
+    [Header("杩愬姩鏁堟灉")]
     [SerializeField] private float jitterStrength = 0.2f;
     [SerializeField] private float snakeAmplitude = 0.2f;
     [SerializeField] private float snakeFrequency = 8f;
 
-    [Header("伤害参数")]
+    [Header("鍠峰皠鍙傛暟")]
+    [SerializeField] private float sprayDuration = 0.5f;
+
+    [Header("浼ゅ鍙傛暟")]
     [SerializeField] private float damage = 2f;
 
     private Transform target;
     private GameObject prefabRef;
     private float timeAlive;
+    private bool isSpraying = false;
+    private Vector3 sprayDirection;
+    private float nextSearchTime; // 涓嬫瀵绘晫鐨勬椂闂存埑
 
     public void Init(GameObject prefab)
     {
         prefabRef = prefab;
         timeAlive = 0f;
         target = null;
+        isSpraying = false;
+        nextSearchTime = 0f;
+    }
+
+    public void SetSprayDirection(Vector3 dir)
+    {
+        isSpraying = true;
+        sprayDirection = dir.normalized;
     }
 
     public void SetTarget(Transform t)
@@ -31,8 +45,15 @@ public class Antibody : MonoBehaviour
         target = t;
     }
 
+    public void SetSpeed(float s)
+    {
+        speed = s;
+    }
+
     private void Update()
     {
+        if (EnemyManager.Instance.enemyCount == 0) return;
+
         timeAlive += Time.deltaTime;
         if (timeAlive >= lifeTime)
         {
@@ -40,15 +61,35 @@ public class Antibody : MonoBehaviour
             return;
         }
 
-        if (target == null)
+        Vector3 dir;
+
+        // ===== 鍠峰皠闃舵 =====
+        if (isSpraying)
         {
-            target = FindNewTarget();
-            if (target == null) return;
+            dir = sprayDirection;
+            if (timeAlive >= sprayDuration)
+                isSpraying = false;
+        }
+        else
+        {
+            // ===== 鏅鸿兘瀵绘晫闃舵 =====
+            if (target == null || !target.gameObject.activeSelf)
+            {
+                if (Time.time >= nextSearchTime)
+                {
+                    target = EnemyManager.Instance.GetNearestEnemy(transform.position);
+                    nextSearchTime = Time.time + searchInterval;
+                }
+                if (target == null) return;
+            }
+
+            dir = (target.position - transform.position).normalized;
         }
 
-        Vector3 dir = (target.position - transform.position).normalized;
-        Vector3 jitter = (Random.insideUnitSphere * jitterStrength);
+        // ===== 鎶栧姩 + 铔囧舰杞ㄨ抗 =====
+        Vector3 jitter = Random.insideUnitSphere * jitterStrength;
         Vector3 snake = Vector3.Cross(dir, Vector3.up) * Mathf.Sin(Time.time * snakeFrequency) * snakeAmplitude;
+
         transform.position += (dir * speed + jitter + snake) * Time.deltaTime;
         transform.rotation = Quaternion.LookRotation(dir);
     }
@@ -62,33 +103,13 @@ public class Antibody : MonoBehaviour
         }
     }
 
-    private Transform FindNewTarget()
-    {
-        Collider[] hits = Physics.OverlapSphere(transform.position, searchRange);
-        Transform nearest = null;
-        float minDist = Mathf.Infinity;
-        foreach (var hit in hits)
-        {
-            if (!hit.TryGetComponent<IDamageable>(out _)) continue;
-            float dist = Vector3.Distance(transform.position, hit.transform.position);
-            if (dist < minDist)
-            {
-                minDist = dist;
-                nearest = hit.transform;
-            }
-        }
-        return nearest;
-    }
-
     private void ReturnToPool()
     {
         if (prefabRef == null)
         {
-            Debug.LogWarning($"[Antibody] 没有 prefabRef，无法回收，直接销毁。");
             Destroy(gameObject);
             return;
         }
-
         ObjectPoolManager.Instance.Return(prefabRef, gameObject);
     }
 }

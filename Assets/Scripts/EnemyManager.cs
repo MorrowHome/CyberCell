@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class EnemyManager : MonoBehaviour
 {
@@ -7,28 +8,41 @@ public class EnemyManager : MonoBehaviour
 
     [Header("Spawn Settings")]
     [SerializeField] private GameObject virusPrefab;
-    [SerializeField] private Transform spawnPoint;
-    [SerializeField] private Transform enemyContainer;
-    [SerializeField] private float baseSpawnInterval = 2f; // »ù´¡¼ä¸ô
-    [SerializeField] private float minSpawnInterval = 0.2f; // ×îĞ¡¼ä¸ôÏŞÖÆ
+    [SerializeField] private GameObject bacteriaPrefab;
+    [SerializeField] private List<Transform> spawnPoints; // å¤šä¸ªç”Ÿæˆç‚¹
+    [SerializeField] private float spawnRadius = 2f;       // æ¯ä¸ªç‚¹ç”Ÿæˆéšæœºåç§»
+    [SerializeField] public Transform enemyContainer;
+    [SerializeField] public float baseSpawnInterval = 2f;
+    [SerializeField] public float minSpawnInterval = 0.02f;
+    public int enemiesAlive;
 
     private int enemiesToSpawn;
     private bool isSpawning;
-    private int waveCount = 0;
+    public int waveCount = 0;
+
+    private readonly List<Transform> enemyList = new List<Transform>();
+    public int enemyCount => enemyList.Count;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        if (enemyContainer == null)
+            enemyContainer = new GameObject("EnemyContainer").transform;
+
+        if (spawnPoints == null || spawnPoints.Count == 0)
+        {
+            // å¦‚æœæ²¡æœ‰æŒ‡å®šç”Ÿæˆç‚¹ï¼Œåˆ™ä½¿ç”¨è‡ªèº«ä½ç½®ä½œä¸ºé»˜è®¤ç”Ÿæˆç‚¹
+            spawnPoints = new List<Transform> { transform };
+        }
     }
 
-    /// <summary>
-    /// Æô¶¯Ò»²¨ĞÂµÄµĞÈËÉú³É
-    /// </summary>
     public void StartNewWave(int count)
     {
         waveCount++;
-        enemiesToSpawn += count; // ÀÛ¼ÓµĞÈËÊıÁ¿
+        enemiesToSpawn += count;
+        enemiesAlive += count;
         if (!isSpawning) StartCoroutine(SpawnWave());
     }
 
@@ -40,11 +54,26 @@ public class EnemyManager : MonoBehaviour
         Debug.Log($"[EnemyManager] Wave {waveCount} started, spawning {enemiesToSpawn} viruses");
 #endif
 
-        float spawnInterval = Mathf.Max(minSpawnInterval, baseSpawnInterval / waveCount);
+        float spawnInterval = Mathf.Max(minSpawnInterval, baseSpawnInterval - waveCount * 0.2f);
 
         while (enemiesToSpawn > 0)
         {
-            GameObject virus = Instantiate(virusPrefab, spawnPoint.position, Quaternion.identity, enemyContainer);
+            // éšæœºé€‰æ‹©ä¸€ä¸ªç”Ÿæˆç‚¹
+            Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Count)];
+            GameObject prefab = (Random.value < 0.8f) ? virusPrefab : bacteriaPrefab;
+
+            // éšæœºåç§»
+            Vector3 offset = new Vector3(
+                Random.Range(-spawnRadius, spawnRadius),
+                0f,
+                Random.Range(-spawnRadius, spawnRadius)
+            );
+
+            GameObject virus = Instantiate(prefab, spawnPoint.position + offset, Quaternion.identity, enemyContainer);
+
+            // æ³¨å†Œæ•Œäºº
+            RegisterEnemy(virus.transform);
+
             enemiesToSpawn--;
             yield return new WaitForSeconds(spawnInterval);
         }
@@ -54,5 +83,41 @@ public class EnemyManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"[EnemyManager] Wave {waveCount} complete");
 #endif
+    }
+
+    public void RegisterEnemy(Transform enemy)
+    {
+        if (!enemyList.Contains(enemy))
+            enemyList.Add(enemy);
+    }
+
+    public void UnregisterEnemy(Transform enemy)
+    {
+        if (enemyList.Contains(enemy))
+        {
+            enemyList.Remove(enemy);
+            enemiesAlive = Mathf.Max(0, enemiesAlive - 1);
+        }
+    }
+
+    public Transform GetNearestEnemy(Vector3 position)
+    {
+        Transform nearest = null;
+        float minDist = Mathf.Infinity;
+
+        for (int i = 0; i < enemyList.Count; i++)
+        {
+            Transform e = enemyList[i];
+            if (e == null || !e.gameObject.activeSelf) continue;
+
+            float dist = (position - e.position).sqrMagnitude;
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = e;
+            }
+        }
+
+        return nearest;
     }
 }

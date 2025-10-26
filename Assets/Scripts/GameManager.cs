@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int actionPointsPerTurn = 20;
     [SerializeField] private float glucoseConcentration = 500f;
 
-    [SerializeField] public float HP = 10f;
+    [SerializeField] public float HP = 100f;
     private int waveCounts = 0;
     
     public float GlucoseConcentration => glucoseConcentration;

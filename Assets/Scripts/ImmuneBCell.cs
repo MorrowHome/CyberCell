@@ -8,8 +8,9 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost, IHasHoverInfo
     [SerializeField] private int actionPointCost = 5;
     [SerializeField] private float glucoseConsumptionPerSecond = 2f;
     [SerializeField] private float defenseRange = 5f;
-    [SerializeField] private float antibodyPerSecond = 2f;
+    [SerializeField] private float attackInterval = 3f;
     [SerializeField] private GameObject antibodyPrefab;
+    [SerializeField] private int countPerAttack = 12;
 
     [Header("邻近血管（四向）")]
     [SerializeField] private BloodVessel bloodVesselForward = null;
@@ -93,7 +94,7 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost, IHasHoverInfo
             if (virus != null)
             {
                 FireAntibody(virus);
-                yield return new WaitForSeconds(1f / antibodyPerSecond);
+                yield return new WaitForSeconds(attackInterval);
             }
             else
             {
@@ -104,16 +105,27 @@ public class ImmuneBCell : MonoBehaviour, IActionPointCost, IHasHoverInfo
 
     private void FireAntibody(Transform target)
     {
-        if (antibodyPrefab == null || target == null) return;
+        if (antibodyPrefab == null) return;
+
         Vector3 spawnPos = transform.position + Vector3.up * 0.5f;
+        float angleStep = 360f / countPerAttack;
 
-        GameObject antibody = ObjectPoolManager.Instance.Get(antibodyPrefab, spawnPos, Quaternion.identity);
-        if (antibody == null) return;
+        for (int i = 0; i < countPerAttack; i++)
+        {
+            float angle = i * angleStep;
+            Vector3 dir = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 0, Mathf.Sin(angle * Mathf.Deg2Rad));
 
-        var ab = antibody.GetComponent<Antibody>();
-        ab.Init(antibodyPrefab);
-        ab.SetTarget(target);
+            GameObject antibody = ObjectPoolManager.Instance.Get(antibodyPrefab, spawnPos, Quaternion.identity);
+            if (antibody == null) continue;
+
+            var ab = antibody.GetComponent<Antibody>();
+            ab.SetTarget(target);
+            ab.Init(antibodyPrefab);
+            ab.SetSpeed(Random.Range(5, 20));
+            ab.SetSprayDirection(dir); // 设置喷射方向
+        }
     }
+
 
     private Transform FindTarget()
     {

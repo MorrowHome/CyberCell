@@ -8,7 +8,7 @@ public class Virus : MonoBehaviour, IDamageable, IDamaging
     [SerializeField] private float speed = 3f;
     [SerializeField] private BloodVessel currentVessel; // 当前所在血管
     [SerializeField] private float HP = 10f;
-    [SerializeField] private float damage = 1f;
+    [SerializeField] private float damage = 3f;
 
     private Rigidbody rb;
     private Queue<BloodVessel> pathToHeart = new Queue<BloodVessel>(); // 寻路路径
@@ -29,7 +29,13 @@ public class Virus : MonoBehaviour, IDamageable, IDamaging
 
     void FixedUpdate()
     {
-        if (pathToHeart.Count == 0) return;
+        if (pathToHeart.Count == 0)
+        {
+            Vector3 d = (MapGenerator.Instance.heartCellTransform.position - transform.position).normalized;
+            rb.MovePosition(rb.position + d * speed * Time.fixedDeltaTime);
+            transform.LookAt(MapGenerator.Instance.heartCellTransform.position);
+            return;
+        }
 
         BloodVessel targetVessel = pathToHeart.Peek();
         Vector3 targetPos = targetVessel.transform.position + Vector3.up * 0.5f;
@@ -95,7 +101,11 @@ public class Virus : MonoBehaviour, IDamageable, IDamaging
     private void BuildPathToHeart()
     {
         pathToHeart.Clear();
-        if (currentVessel == null) return;
+        if (currentVessel == null)
+        {
+            Debug.LogError("Virus 找不到当前血管，无法寻路到心脏！");
+            return;
+        }
 
         Queue<BloodVessel> queue = new Queue<BloodVessel>();
         Dictionary<BloodVessel, BloodVessel> parentMap = new Dictionary<BloodVessel, BloodVessel>();
@@ -159,6 +169,7 @@ public class Virus : MonoBehaviour, IDamageable, IDamaging
             currentGrid.isOccupied = false;
             currentGrid.whatIsOnMe = null;
         }
+        EnemyManager.Instance.enemiesAlive--;
         Destroy(gameObject);
     }
 
